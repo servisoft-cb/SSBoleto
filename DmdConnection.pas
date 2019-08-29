@@ -12,7 +12,6 @@ uses
 type
   TDMConection = class(TDataModule)
     FDConnection: TFDConnection;
-    SQLConnection1: TSQLConnection;
     procedure DataModuleCreate(Sender: TObject);
   private
     { Private declarations }
@@ -26,7 +25,7 @@ var
 implementation
 
 uses
-  System.IniFiles, Vcl.Forms, Vcl.Dialogs;
+  System.IniFiles, Vcl.Forms, Vcl.Dialogs, uUtilPadrao;
 
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
@@ -67,6 +66,7 @@ begin
     FDConnection.Params.Values['User_Name'] := UserName;
     FDConnection.Params.Values['Password'] := PassWord;
     FDConnection.Connected := True;
+    uUtilPadrao.vCaminhoBanco := BancoDados;
   except
     on E : Exception do
     begin

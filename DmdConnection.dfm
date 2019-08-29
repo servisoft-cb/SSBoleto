@@ -6,16 +6,13 @@ object DMConection: TDMConection
   object FDConnection: TFDConnection
     Params.Strings = (
       'User_Name=SYSDBA'
-      'Database=D:\Fontes\$Servisoft\Bases\SSFacil\CRI.FDB'
+      'Database=D:\Sistema\$Servisoft\BasesClientes\SaoJose.FDB'
       'Password=masterkey'
       'CharacterSet=win1252'
       'DriverID=FB')
+    Connected = True
     LoginPrompt = False
     Left = 32
     Top = 16
-  end
-  object SQLConnection1: TSQLConnection
-    Left = 128
-    Top = 128
   end
 end
