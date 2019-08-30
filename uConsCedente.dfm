@@ -6,12 +6,12 @@ inherited frmConsCedente: TfrmConsCedente
   TextHeight = 13
   inherited pnlTop: TPanel
     inherited btnConsultar: TSMButton
-      Left = 567
+      Left = 521
       OnClick = btnConsultarClick
-      ExplicitLeft = 567
+      ExplicitLeft = 521
     end
     object btnEnviar: TSMButton
-      Left = 464
+      Left = 624
       Top = 25
       Width = 97
       Height = 33

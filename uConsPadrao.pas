@@ -12,7 +12,7 @@ type
     pnlTop: TPanel;
     pnlPrincipal: TPanel;
     btnConsultar: TSMButton;
-    PageControl1: TPageControl;
+    pg_Principal: TPageControl;
     ts_Principal: TTabSheet;
     SMDBGrid1: TSMDBGrid;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);

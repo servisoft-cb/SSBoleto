@@ -37,9 +37,7 @@ object frmConsPadrao: TfrmConsPadrao
     Height = 374
     Align = alClient
     TabOrder = 1
-    ExplicitTop = 81
-    ExplicitHeight = 393
-    object PageControl1: TPageControl
+    object pg_Principal: TPageControl
       Left = 1
       Top = 1
       Width = 780
@@ -47,10 +45,8 @@ object frmConsPadrao: TfrmConsPadrao
       ActivePage = ts_Principal
       Align = alClient
       TabOrder = 0
-      ExplicitHeight = 391
       object ts_Principal: TTabSheet
         Caption = 'Principal'
-        ExplicitHeight = 363
         object SMDBGrid1: TSMDBGrid
           Left = 0
           Top = 0

@@ -11,9 +11,6 @@ uses
 type
   TfrmMenu = class(TForm)
     MainMenu1: TMainMenu;
-    UCFireDACConn1: TUCFireDACConn;
-    UserControl1: TUserControl;
-    UCSettings1: TUCSettings;
     Administracao1: TMenuItem;
     Cadastros1: TMenuItem;
     Parmetros1: TMenuItem;
