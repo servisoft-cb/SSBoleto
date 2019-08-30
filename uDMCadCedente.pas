@@ -10,24 +10,26 @@ uses
 
 type
   TdmCadCedente = class(TDataModule)
-    fdtCadCedente: TFDTable;
     dsCadCedente: TDataSource;
     qryCadCedente: TFDQuery;
-    fdtCadCedenteID: TIntegerField;
-    fdtCadCedenteNOME: TStringField;
-    fdtCadCedenteNOME_INTERNO: TStringField;
-    fdtCadCedenteENDERECO: TStringField;
-    fdtCadCedenteCOMPLEMENTO_END: TStringField;
-    fdtCadCedenteNUM_END: TStringField;
-    fdtCadCedenteBAIRRO: TStringField;
-    fdtCadCedenteCEP: TStringField;
-    fdtCadCedenteID_CIDADE: TIntegerField;
-    fdtCadCedenteCIDADE: TStringField;
-    fdtCadCedenteUF: TStringField;
-    fdtCadCedenteDDD1: TIntegerField;
-    fdtCadCedenteFONE1: TStringField;
-    fdtCadCedenteID_CEDENTE: TIntegerField;
-    fdtCadCedenteTOKEN_CEDENTE: TStringField;
+    qryConsulta: TFDQuery;
+    qryConsultaID: TIntegerField;
+    qryConsultaNOME: TStringField;
+    qryConsultaNOME_INTERNO: TStringField;
+    qryConsultaENDERECO: TStringField;
+    qryConsultaCOMPLEMENTO_END: TStringField;
+    qryConsultaNUM_END: TStringField;
+    qryConsultaBAIRRO: TStringField;
+    qryConsultaCEP: TStringField;
+    qryConsultaID_CIDADE: TIntegerField;
+    qryConsultaCODMUNICIPIO: TStringField;
+    qryConsultaUF: TStringField;
+    qryConsultaDDD1: TIntegerField;
+    qryConsultaFONE1: TStringField;
+    qryConsultaID_CEDENTE: TIntegerField;
+    qryConsultaTOKEN_CEDENTE: TStringField;
+    qryConsultaCNPJ_CPF: TStringField;
+    qryConsultaEMAIL_FINANCEIRO: TStringField;
   private
     { Private declarations }
   public

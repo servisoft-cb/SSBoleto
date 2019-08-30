@@ -18,12 +18,11 @@ object frmConsPadrao: TfrmConsPadrao
     Left = 0
     Top = 0
     Width = 782
-    Height = 81
+    Height = 100
     Align = alTop
     TabOrder = 0
-    ExplicitWidth = 765
     object btnConsultar: TSMButton
-      Left = 344
+      Left = 504
       Top = 25
       Width = 97
       Height = 33
@@ -33,31 +32,30 @@ object frmConsPadrao: TfrmConsPadrao
   end
   object pnlPrincipal: TPanel
     Left = 0
-    Top = 81
+    Top = 100
     Width = 782
-    Height = 393
+    Height = 374
     Align = alClient
     TabOrder = 1
-    ExplicitTop = 8
-    ExplicitWidth = 765
-    ExplicitHeight = 73
+    ExplicitTop = 81
+    ExplicitHeight = 393
     object PageControl1: TPageControl
       Left = 1
       Top = 1
       Width = 780
-      Height = 391
+      Height = 372
       ActivePage = ts_Principal
       Align = alClient
       TabOrder = 0
+      ExplicitHeight = 391
       object ts_Principal: TTabSheet
         Caption = 'Principal'
-        ExplicitWidth = 755
-        ExplicitHeight = 328
+        ExplicitHeight = 363
         object SMDBGrid1: TSMDBGrid
           Left = 0
           Top = 0
           Width = 772
-          Height = 363
+          Height = 344
           Align = alClient
           Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
           TabOrder = 0

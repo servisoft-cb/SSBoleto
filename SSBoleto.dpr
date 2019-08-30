@@ -9,7 +9,9 @@ uses
   uDMCadCedente in 'uDMCadCedente.pas' {dmCadCedente: TDataModule},
   uUtilPadrao in 'uUtilPadrao.pas',
   uConsPadrao in 'uConsPadrao.pas' {frmConsPadrao},
-  uConsCedente in 'uConsCedente.pas' {frmConsCedente};
+  uConsCedente in 'uConsCedente.pas' {frmConsCedente},
+  uBaseDAO in 'uBaseDAO.pas',
+  uConfigTecnoSpeed in 'uConfigTecnoSpeed.pas';
 
 {$R *.res}
 

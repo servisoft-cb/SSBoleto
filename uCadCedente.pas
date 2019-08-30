@@ -55,7 +55,7 @@ implementation
 procedure TfrmCadCedente.btnPesquisarClick(Sender: TObject);
 begin
   inherited;
-  fDMCadCedente.fdtCadCedente.Open;
+  fDMCadCedente.qryCadCedente.Open;
 end;
 
 procedure TfrmCadCedente.FormCreate(Sender: TObject);
