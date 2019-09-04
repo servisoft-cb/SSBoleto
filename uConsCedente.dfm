@@ -1,46 +1,51 @@
 inherited frmConsCedente: TfrmConsCedente
   Caption = 'Consulta Cedente'
-  OnCreate = FormCreate
-  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlTop: TPanel
-    inherited btnConsultar: TSMButton
-      Left = 521
-      OnClick = btnConsultarClick
-      ExplicitLeft = 521
+    inherited Label1: TLabel
+      Width = 71
+      Caption = 'Nome Cedente'
+      ExplicitWidth = 71
     end
-    object btnEnviar: TSMButton
-      Left = 624
-      Top = 25
+    inherited btnConsultar: TSMButton
+      Left = 367
+      ExplicitLeft = 367
+    end
+    object btnEnviar: TSMButton [2]
+      Left = 488
+      Top = 10
       Width = 97
       Height = 33
       Caption = 'Enviar'
       TabOrder = 1
       OnClick = btnEnviarClick
     end
-    object spdBoletoX1: TspdBoletoX
-      Left = 736
-      Top = 32
+    object spdBoletoX1: TspdBoletoX [3]
+      Left = 5
+      Top = 57
       Width = 26
       Height = 26
       ControlData = {
         54504630185441637469766558436F6D706F6E656E74436F6E74726F6C00044C
         656674020003546F700200055769647468021A06486569676874021A0000}
     end
-    object edtIDCedente: TEdit
-      Left = 32
-      Top = 48
-      Width = 121
-      Height = 21
-      TabOrder = 3
+    inherited pnlSair: TPanel
+      TabOrder = 2
+    end
+    inherited comboFilial: TJvDBLookupCombo
+      Left = 101
+      Width = 260
+      TabOrder = 4
+      ExplicitLeft = 101
+      ExplicitWidth = 260
     end
   end
   inherited pnlPrincipal: TPanel
     inherited pg_Principal: TPageControl
-      inherited ts_Principal: TTabSheet
+      ActivePage = ts_Mensagem
+      inherited ts_Consulta: TTabSheet
         inherited SMDBGrid1: TSMDBGrid
-          DataSource = dmCadCedente.dsCadCedente
           Columns = <
             item
               Expanded = False
@@ -55,37 +60,31 @@ inherited frmConsCedente: TfrmConsCedente
             item
               Expanded = False
               FieldName = 'NOME_INTERNO'
-              Width = 64
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'ENDERECO'
-              Width = 64
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'COMPLEMENTO_END'
-              Width = 64
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'NUM_END'
-              Width = 64
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'BAIRRO'
-              Width = 64
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'CEP'
-              Width = 64
               Visible = True
             end
             item
@@ -96,13 +95,11 @@ inherited frmConsCedente: TfrmConsCedente
             item
               Expanded = False
               FieldName = 'CODMUNICIPIO'
-              Width = 64
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'UF'
-              Width = 64
               Visible = True
             end
             item
@@ -113,7 +110,6 @@ inherited frmConsCedente: TfrmConsCedente
             item
               Expanded = False
               FieldName = 'FONE1'
-              Width = 64
               Visible = True
             end
             item
@@ -124,13 +120,11 @@ inherited frmConsCedente: TfrmConsCedente
             item
               Expanded = False
               FieldName = 'TOKEN_CEDENTE'
-              Width = 64
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'CNPJ_CPF'
-              Width = 64
               Visible = True
             end>
         end
@@ -150,11 +144,23 @@ inherited frmConsCedente: TfrmConsCedente
           Left = 0
           Top = 153
           Width = 772
-          Height = 191
+          Height = 203
           Align = alClient
           TabOrder = 1
         end
       end
     end
+  end
+  inherited dsConsulta: TDataSource
+    Left = 704
+    Top = 176
+  end
+  inherited qryFilial: TFDQuery
+    Left = 488
+    Top = 40
+  end
+  inherited dsFilial: TDataSource
+    Left = 520
+    Top = 40
   end
 end

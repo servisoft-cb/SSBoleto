@@ -11,7 +11,11 @@ uses
   uConsPadrao in 'uConsPadrao.pas' {frmConsPadrao},
   uConsCedente in 'uConsCedente.pas' {frmConsCedente},
   uBaseDAO in 'uBaseDAO.pas',
-  uConfigTecnoSpeed in 'uConfigTecnoSpeed.pas';
+  uConfigTecnoSpeed in 'uConfigTecnoSpeed.pas',
+  uConsConta in 'uConsConta.pas' {frmConsConta},
+  uDMCadConta in 'uDMCadConta.pas' {dmCadConta: TDataModule},
+  uConsDuplicata in 'uConsDuplicata.pas' {frmConsDuplicata},
+  uDMCadDuplicata in 'uDMCadDuplicata.pas' {DMCadDuplicata: TDataModule};
 
 {$R *.res}
 

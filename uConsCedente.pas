@@ -6,7 +6,11 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uConsPadrao, Data.DB, Vcl.StdCtrls,
   SMultiBtn, Vcl.Grids, Vcl.DBGrids, SMDBGrid, Vcl.ExtCtrls, uDMCadCedente,
-  Vcl.ComCtrls, uConfigTecnoSpeed, Vcl.OleCtrls, BoletoX_TLB;
+  Vcl.ComCtrls, uConfigTecnoSpeed, Vcl.OleCtrls, BoletoX_TLB, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
+  FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.DBCtrls, JvExControls,
+  JvDBLookup;
 
 type
   TfrmConsCedente = class(TfrmConsPadrao)
@@ -15,8 +19,6 @@ type
     ts_Mensagem: TTabSheet;
     mmEnvio: TMemo;
     mmResposta: TMemo;
-    edtIDCedente: TEdit;
-    procedure FormShow(Sender: TObject);
     procedure btnConsultarClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure CarregaConfig(Filial : Integer; Tipo : Integer);
@@ -37,12 +39,20 @@ var
 
 implementation
 
+uses
+  DmdConnection;
+
 {$R *.dfm}
 
 
 procedure TfrmConsCedente.btnConsultarClick(Sender: TObject);
 begin
   inherited;
+  fDMCadCedente.qryConsulta.Close;
+  if comboFilial.KeyValue > 0 then
+    fDMCadCedente.qryConsulta.ParamByName('ID').AsInteger := qryFilialID.AsInteger
+  else
+    fDMCadCedente.qryConsulta.ParamByName('ID').AsInteger := 0;
   fDMCadCedente.qryConsulta.Open;
 end;
 
@@ -68,12 +78,8 @@ procedure TfrmConsCedente.FormCreate(Sender: TObject);
 begin
   inherited;
   FBoletoX := TspdBoletoX.Create(nil);
-end;
-
-procedure TfrmConsCedente.FormShow(Sender: TObject);
-begin
-  inherited;
   fDMCadCedente := TdmCadCedente.Create(Self);
+  dsConsulta.DataSet := fDMCadCedente.qryConsulta;
 end;
 
 function TfrmConsCedente.fnc_Montar_Envio: TStringList;
@@ -99,6 +105,12 @@ var
   _Cedente: IspdRetCadastrarCedente;
 begin
   inherited;
+  if fDMCadCedente.qryConsultaID_CEDENTE.AsInteger > 0 then
+  begin
+    MessageDlg('Cedente já cadastrado!',mtInformation,[mbOK],0);
+    Exit;
+  end;
+
   CarregaConfig(fDMCadCedente.qryConsultaID.AsInteger,1);
 
   mmEnvio.Lines.Clear;
@@ -124,6 +136,8 @@ begin
       mmResposta.Lines.Add('  Razao Social: '   + _Cedente.RazaoSocial);
       mmResposta.Lines.Add('  Nome Fantasia: '  + _Cedente.NomeFantasia);
       mmResposta.Lines.Add('');
+      fDMCadCedente.prc_Abrir_Cedente(fDMCadCedente.qryConsultaID.AsInteger);
+      fDMCadCedente.prc_Gravar_Cedente(StrToInt(_Cedente.IdCedente),_Cedente.Token);
     end;
     mmResposta.SelStart  := 1;
     mmResposta.SelLength := 1;

@@ -6,7 +6,7 @@ object DMConection: TDMConection
   object FDConnection: TFDConnection
     Params.Strings = (
       'User_Name=SYSDBA'
-      'Database=D:\Sistema\$Servisoft\BasesClientes\SaoJose.FDB'
+      'Database=E:\$Servisoft\Dados\SaoJose.FDB'
       'Password=masterkey'
       'CharacterSet=win1252'
       'DriverID=FB')

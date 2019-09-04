@@ -2,17 +2,40 @@ object dmCadCedente: TdmCadCedente
   OldCreateOrder = False
   Height = 294
   Width = 356
-  object dsCadCedente: TDataSource
-    DataSet = qryConsulta
-    Left = 128
-    Top = 24
-  end
   object qryCadCedente: TFDQuery
     Connection = DMConection.FDConnection
     SQL.Strings = (
-      'Select * from FILIAL')
-    Left = 40
-    Top = 80
+      'Select * from FILIAL'
+      'Where id = :id')
+    Left = 32
+    Top = 72
+    ParamData = <
+      item
+        Name = 'ID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end>
+    object qryCadCedenteID: TIntegerField
+      FieldName = 'ID'
+      Origin = 'ID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+    end
+    object qryCadCedenteNOME: TStringField
+      FieldName = 'NOME'
+      Origin = 'NOME'
+      Size = 60
+    end
+    object qryCadCedenteTOKEN_CEDENTE: TStringField
+      FieldName = 'TOKEN_CEDENTE'
+      Origin = 'TOKEN_CEDENTE'
+      Size = 40
+    end
+    object qryCadCedenteID_CEDENTE: TIntegerField
+      FieldName = 'ID_CEDENTE'
+      Origin = 'ID_CEDENTE'
+    end
   end
   object qryConsulta: TFDQuery
     Connection = DMConection.FDConnection
@@ -24,9 +47,17 @@ object dmCadCedente: TdmCadCedente
         '       C.CODMUNICIPIO, F.UF, F.DDD1, F.FONE1, F.ID_CEDENTE, F.TO' +
         'KEN_CEDENTE, F.CNPJ_CPF, F.EMAIL_FINANCEIRO'
       'from FILIAL F'
-      'left join CIDADE C on F.ID_CIDADE = C.ID  ')
+      'left join CIDADE C on F.ID_CIDADE = C.ID '
+      'where (F.ID = :ID or :ID = 0)')
     Left = 32
     Top = 24
+    ParamData = <
+      item
+        Name = 'ID'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end>
     object qryConsultaID: TIntegerField
       FieldName = 'ID'
       Origin = 'ID'
@@ -35,15 +66,17 @@ object dmCadCedente: TdmCadCedente
     end
     object qryConsultaNOME: TStringField
       DisplayLabel = 'Nome'
+      DisplayWidth = 40
       FieldName = 'NOME'
       Origin = 'NOME'
       Size = 60
     end
     object qryConsultaNOME_INTERNO: TStringField
       DisplayLabel = 'Fantasia'
+      DisplayWidth = 20
       FieldName = 'NOME_INTERNO'
       Origin = 'NOME_INTERNO'
-      Size = 30
+      Size = 40
     end
     object qryConsultaENDERECO: TStringField
       DisplayLabel = 'Endere'#231'o'
@@ -53,12 +86,14 @@ object dmCadCedente: TdmCadCedente
     end
     object qryConsultaCOMPLEMENTO_END: TStringField
       DisplayLabel = 'Complemento'
+      DisplayWidth = 10
       FieldName = 'COMPLEMENTO_END'
       Origin = 'COMPLEMENTO_END'
       Size = 60
     end
     object qryConsultaNUM_END: TStringField
       DisplayLabel = 'N'#250'mero'
+      DisplayWidth = 10
       FieldName = 'NUM_END'
       Origin = 'NUM_END'
       Size = 15
@@ -70,6 +105,7 @@ object dmCadCedente: TdmCadCedente
       Size = 30
     end
     object qryConsultaCEP: TStringField
+      DisplayWidth = 15
       FieldName = 'CEP'
       Origin = 'CEP'
       Size = 9

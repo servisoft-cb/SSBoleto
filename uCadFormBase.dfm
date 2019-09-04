@@ -121,9 +121,6 @@ object CadFormBase: TCadFormBase
             Text = 'Mensagem'
             Width = 350
           end>
-        ExplicitLeft = 336
-        ExplicitTop = 416
-        ExplicitWidth = 0
       end
     end
     object ts_Cadastro: TTabSheet
@@ -172,8 +169,6 @@ object CadFormBase: TCadFormBase
         Align = alClient
         Enabled = False
         TabOrder = 1
-        ExplicitTop = 53
-        ExplicitHeight = 425
       end
     end
   end

@@ -10,7 +10,6 @@ uses
 
 type
   TdmCadCedente = class(TDataModule)
-    dsCadCedente: TDataSource;
     qryCadCedente: TFDQuery;
     qryConsulta: TFDQuery;
     qryConsultaID: TIntegerField;
@@ -30,9 +29,15 @@ type
     qryConsultaTOKEN_CEDENTE: TStringField;
     qryConsultaCNPJ_CPF: TStringField;
     qryConsultaEMAIL_FINANCEIRO: TStringField;
+    qryCadCedenteID: TIntegerField;
+    qryCadCedenteNOME: TStringField;
+    qryCadCedenteTOKEN_CEDENTE: TStringField;
+    qryCadCedenteID_CEDENTE: TIntegerField;
   private
     { Private declarations }
   public
+    procedure prc_Abrir_Cedente(ID : Integer);
+    procedure prc_Gravar_Cedente(ID_Cedente : Integer ; Token : String);
     { Public declarations }
   end;
 
@@ -45,5 +50,26 @@ implementation
 
 
 {$R *.dfm}
+
+{ TdmCadCedente }
+
+procedure TdmCadCedente.prc_Abrir_Cedente(ID: Integer);
+begin
+  qryCadCedente.Close;
+  qryCadCedente.ParamByName('ID').AsInteger := ID;
+  qryCadCedente.Open;
+end;
+
+procedure TdmCadCedente.prc_Gravar_Cedente(ID_Cedente : Integer ; Token : String);
+begin
+  if not (qryCadCedente.IsEmpty) then
+  begin
+    qryCadCedente.Edit;
+    qryCadCedenteID_CEDENTE.AsInteger := ID_Cedente;
+    qryCadCedenteTOKEN_CEDENTE.AsString := Token;
+    qryCadCedente.Post;
+    qryCadCedente.UpdateTransaction;
+  end;
+end;
 
 end.
