@@ -11,122 +11,6 @@ uses
 type
   TDMCadDuplicata = class(TDataModule)
     qryDuplicata: TFDQuery;
-    qryDuplicataID: TIntegerField;
-    qryDuplicataTIPO_ES: TStringField;
-    qryDuplicataFILIAL: TIntegerField;
-    qryDuplicataID_NOTA: TIntegerField;
-    qryDuplicataPARCELA: TIntegerField;
-    qryDuplicataNUMDUPLICATA: TStringField;
-    qryDuplicataNUMNOTA: TIntegerField;
-    qryDuplicataSERIE: TStringField;
-    qryDuplicataDTVENCIMENTO: TDateField;
-    qryDuplicataVLR_PARCELA: TFloatField;
-    qryDuplicataVLR_RESTANTE: TFloatField;
-    qryDuplicataVLR_PAGO: TFloatField;
-    qryDuplicataVLR_DEVOLUCAO: TFloatField;
-    qryDuplicataVLR_DESPESAS: TFloatField;
-    qryDuplicataVLR_DESCONTO: TFloatField;
-    qryDuplicataVLR_JUROSPAGOS: TFloatField;
-    qryDuplicataVLR_COMISSAO: TFloatField;
-    qryDuplicataPERC_COMISSAO: TFloatField;
-    qryDuplicataDTULTPAGAMENTO: TDateField;
-    qryDuplicataID_PESSOA: TIntegerField;
-    qryDuplicataID_CONTA: TIntegerField;
-    qryDuplicataID_TIPOCOBRANCA: TIntegerField;
-    qryDuplicataID_VENDEDOR: TIntegerField;
-    qryDuplicataID_CONTA_BOLETO: TIntegerField;
-    qryDuplicataID_COMISSAO: TIntegerField;
-    qryDuplicataQTD_DIASATRASO: TIntegerField;
-    qryDuplicataDTRECEBIMENTO_TITULO: TDateField;
-    qryDuplicataDTEMISSAO: TDateField;
-    qryDuplicataPAGO_CARTORIO: TStringField;
-    qryDuplicataPROTESTADO: TStringField;
-    qryDuplicataTIPO_LANCAMENTO: TStringField;
-    qryDuplicataARQUIVO_GERADO: TStringField;
-    qryDuplicataTRANSFERENCIA_ICMS: TStringField;
-    qryDuplicataNOSSONUMERO: TStringField;
-    qryDuplicataDTFINANCEIRO: TDateField;
-    qryDuplicataNUMCHEQUE: TIntegerField;
-    qryDuplicataACEITE: TStringField;
-    qryDuplicataID_COB_ELETRONICA: TIntegerField;
-    qryDuplicataBOLETO_IMP: TStringField;
-    qryDuplicataID_CARTEIRA: TIntegerField;
-    qryDuplicataID_BANCO: TIntegerField;
-    qryDuplicataIMP_BOLETO: TStringField;
-    qryDuplicataNUM_REMESSA: TIntegerField;
-    qryDuplicataID_NOTA_SERVICO: TIntegerField;
-    qryDuplicataDESCRICAO: TStringField;
-    qryDuplicataNUMRPS: TIntegerField;
-    qryDuplicataANO_REF: TIntegerField;
-    qryDuplicataMES_REF: TIntegerField;
-    qryDuplicataNUM_CONTRATO: TIntegerField;
-    qryDuplicataID_CONTA_ORCAMENTO: TIntegerField;
-    qryDuplicataID_CUPOM: TIntegerField;
-    qryDuplicataVLR_TAXA_BANCARIA: TFloatField;
-    qryDuplicataCOBRAR_TAXA: TStringField;
-    qryDuplicataID_TERMINAL: TIntegerField;
-    qryDuplicataID_FECHAMENTO: TIntegerField;
-    qryDuplicataTIPO_MOV: TStringField;
-    qryDuplicataNOSSONUMERO_SEQ: TLargeintField;
-    qryDuplicataNOSSONUMERO_GERADO: TStringField;
-    qryDuplicataNUMDUPLICATA_SEQ: TIntegerField;
-    qryDuplicataID_RECIBO: TIntegerField;
-    qryDuplicataID_PEDIDO: TIntegerField;
-    qryDuplicataPERC_COMISSAO_PAGAR_NOTA: TFloatField;
-    qryDuplicataUSUARIO: TStringField;
-    qryDuplicataTITULO_CARTORIO: TStringField;
-    qryDuplicataID_DESCONTADA: TIntegerField;
-    qryDuplicataCONFIRMA_PGTO: TStringField;
-    qryDuplicataCOD_ANT: TIntegerField;
-    qryDuplicataPERC_BASE_COMISSAO: TFloatField;
-    qryDuplicataEMISSAO_BOLETO: TStringField;
-    qryDuplicataDESCRICAO2: TStringField;
-    qryDuplicataID_CONTRATO: TIntegerField;
-    qryDuplicataVLR_MULTA: TFloatField;
-    qryDuplicataID_CONTABIL_OPE_LACTO: TIntegerField;
-    qryDuplicataID_CONTABIL_OPE_BAIXA: TIntegerField;
-    qryDuplicataREGIME_CAIXA: TStringField;
-    qryDuplicataPERDIDO: TStringField;
-    qryDuplicataINSTRUCAO_PROTESTO: TStringField;
-    qryDuplicataNGR: TStringField;
-    qryDuplicataAPROVADO: TStringField;
-    qryDuplicataDTAPROVADO: TDateField;
-    qryDuplicataCANCELADA: TStringField;
-    qryDuplicataDTVENCIMENTO_INI: TDateField;
-    qryDuplicataNOME_CLIENTE: TStringField;
-    qryDuplicataNOME_CONTA: TStringField;
-    qryDuplicataCOD_CARTEIRA: TStringField;
-    qryDuplicataCOD_CARTEIRA_IMP: TStringField;
-    qryDuplicataNOME_CARTEIRA: TStringField;
-    qryDuplicataGERAR_NOSSONUMERO: TStringField;
-    qryDuplicataPESSOA: TStringField;
-    qryDuplicataCNPJ_CPF: TStringField;
-    qryDuplicataENDERECO: TStringField;
-    qryDuplicataNUM_END: TStringField;
-    qryDuplicataCEP: TStringField;
-    qryDuplicataBAIRRO: TStringField;
-    qryDuplicataCIDADE: TStringField;
-    qryDuplicataUF: TStringField;
-    qryDuplicataPESSOA_PGTO: TStringField;
-    qryDuplicataENDERECO_PGTO: TStringField;
-    qryDuplicataNUM_END_PGTO: TStringField;
-    qryDuplicataCEP_PGTO: TStringField;
-    qryDuplicataBAIRRO_PGTO: TStringField;
-    qryDuplicataCIDADE_PGTO: TStringField;
-    qryDuplicataUF_PGTO: TStringField;
-    qryDuplicataCNPJ_CPG_PGTO: TStringField;
-    qryDuplicataEMAIL_PGTO: TStringField;
-    qryDuplicataCOMPLEMENTO_END: TStringField;
-    qryDuplicataCOMPLEMENTO_END_PGTO: TStringField;
-    qryDuplicataGERAR_REMESSA: TStringField;
-    qryDuplicataID_GRUPO: TIntegerField;
-    qryDuplicataNOME_GRUPO: TStringField;
-    qryDuplicataID_CARTEIRA_CLIENTE: TIntegerField;
-    qryDuplicataTAXA_BANCO: TStringField;
-    qryDuplicataTIPO_REG: TStringField;
-    qryDuplicataNFECHAVEACESSO: TStringField;
-    qryDuplicataCOD_AUTENCIDADE_RET: TStringField;
-    qryDuplicataID_OCORRENCIA_COB: TIntegerField;
     qryContas: TFDQuery;
     dsContas: TDataSource;
     qryOcorrencia: TFDQuery;
@@ -229,6 +113,62 @@ type
     qryContasGERAR_REMESSA: TStringField;
     qryContasACBR_USAR_MONTAR_NOSSONUMERO: TStringField;
     qryContasINICIAL_NOME_ARQ_REMESSA: TStringField;
+    qryConsulta_Duplicata: TFDQuery;
+    qryConsulta_DuplicataID: TIntegerField;
+    qryConsulta_DuplicataTIPO_ES: TStringField;
+    qryConsulta_DuplicataFILIAL: TIntegerField;
+    qryConsulta_DuplicataID_NOTA: TIntegerField;
+    qryConsulta_DuplicataPARCELA: TIntegerField;
+    qryConsulta_DuplicataNUMDUPLICATA: TStringField;
+    qryConsulta_DuplicataNUMNOTA: TIntegerField;
+    qryConsulta_DuplicataSERIE: TStringField;
+    qryConsulta_DuplicataDTVENCIMENTO: TDateField;
+    qryConsulta_DuplicataVLR_PARCELA: TFloatField;
+    qryConsulta_DuplicataVLR_RESTANTE: TFloatField;
+    qryConsulta_DuplicataVLR_PAGO: TFloatField;
+    qryConsulta_DuplicataVLR_DESCONTO: TFloatField;
+    qryConsulta_DuplicataID_PESSOA: TIntegerField;
+    qryConsulta_DuplicataID_TIPOCOBRANCA: TIntegerField;
+    qryConsulta_DuplicataDTULTPAGAMENTO: TDateField;
+    qryConsulta_DuplicataID_CONTA_BOLETO: TIntegerField;
+    qryConsulta_DuplicataNOME_CLIENTE: TStringField;
+    qryConsulta_DuplicataNOME_CONTA: TStringField;
+    qryConsulta_DuplicataCOD_CARTEIRA: TStringField;
+    qryConsulta_DuplicataCOD_CARTEIRA_IMP: TStringField;
+    qryConsulta_DuplicataNOME_CARTEIRA: TStringField;
+    qryConsulta_DuplicataGERAR_NOSSONUMERO: TStringField;
+    qryConsulta_DuplicataPESSOA: TStringField;
+    qryConsulta_DuplicataCNPJ_CPF: TStringField;
+    qryConsulta_DuplicataENDERECO: TStringField;
+    qryConsulta_DuplicataNUM_END: TStringField;
+    qryConsulta_DuplicataCEP: TStringField;
+    qryConsulta_DuplicataBAIRRO: TStringField;
+    qryConsulta_DuplicataCIDADE: TStringField;
+    qryConsulta_DuplicataUF: TStringField;
+    qryConsulta_DuplicataPESSOA_PGTO: TStringField;
+    qryConsulta_DuplicataENDERECO_PGTO: TStringField;
+    qryConsulta_DuplicataNUM_END_PGTO: TStringField;
+    qryConsulta_DuplicataCEP_PGTO: TStringField;
+    qryConsulta_DuplicataBAIRRO_PGTO: TStringField;
+    qryConsulta_DuplicataCIDADE_PGTO: TStringField;
+    qryConsulta_DuplicataUF_PGTO: TStringField;
+    qryConsulta_DuplicataCNPJ_CPG_PGTO: TStringField;
+    qryConsulta_DuplicataEMAIL_PGTO: TStringField;
+    qryConsulta_DuplicataCOMPLEMENTO_END: TStringField;
+    qryConsulta_DuplicataCOMPLEMENTO_END_PGTO: TStringField;
+    qryConsulta_DuplicataGERAR_REMESSA: TStringField;
+    qryConsulta_DuplicataID_GRUPO: TIntegerField;
+    qryConsulta_DuplicataNOME_GRUPO: TStringField;
+    qryConsulta_DuplicataID_CARTEIRA_CLIENTE: TIntegerField;
+    qryConsulta_DuplicataTAXA_BANCO: TStringField;
+    qryConsulta_DuplicataTIPO_REG: TStringField;
+    qryConsulta_DuplicataNFECHAVEACESSO: TStringField;
+    qryConsulta_DuplicataCOD_AUTENCIDADE_RET: TStringField;
+    qryConsulta_DuplicataID_OCORRENCIA_COB: TIntegerField;
+    qryConsulta_DuplicataDTEMISSAO: TDateField;
+    qryConsulta_DuplicataID_CONTA: TIntegerField;
+    qryConsulta_DuplicataID_INTEGRACAO: TStringField;
+    qryConsulta: TFDQuery;
     procedure qryContasBeforeScroll(DataSet: TDataSet);
     procedure DataModuleCreate(Sender: TObject);
   private
@@ -237,6 +177,9 @@ type
     { Public declarations }
     ctCommandDup : String;
     procedure prc_Abrir_Ocorrencia(Tipo : String; ID_Banco : Integer);
+    procedure prc_Abrir_Duplicata(ID : Integer);
+    procedure prc_Gravar_Duplicata(ID_Duplicata : Integer ; ID_Integracao : String);
+
 
   end;
 
@@ -254,7 +197,14 @@ implementation
 
 procedure TDMCadDuplicata.DataModuleCreate(Sender: TObject);
 begin
-  ctCommandDup := qryDuplicata.SQL.Text;
+  ctCommandDup := qryConsulta_Duplicata.SQL.Text;
+end;
+
+procedure TDMCadDuplicata.prc_Abrir_Duplicata(ID: Integer);
+begin
+  qryDuplicata.Close;
+  qryDuplicata.ParamByName('ID').AsInteger := ID;
+  qryDuplicata.Open;
 end;
 
 procedure TDMCadDuplicata.prc_Abrir_Ocorrencia(Tipo: String; ID_Banco: Integer);
@@ -265,6 +215,19 @@ begin
   qryOcorrencia.Open();
   if not (qryOcorrencia.IsEmpty) and (qryContasID_OCORRENCIA.AsInteger > 0) then
     qryOcorrencia.Locate('ID',qryContasID_OCORRENCIA.AsInteger);
+end;
+
+procedure TDMCadDuplicata.prc_Gravar_Duplicata(ID_Duplicata: Integer;
+  ID_Integracao: String);
+begin
+  if not (qryDuplicata.IsEmpty) then
+  begin
+    qryDuplicata.Edit;
+    qryDuplicata.FieldByName('ID').AsInteger := ID_Duplicata;
+    qryDuplicata.FieldByName('ID_INTEGRACAO').AsString := ID_Integracao;
+    qryDuplicata.Post;
+    qryDuplicata.UpdateTransaction;
+  end;
 end;
 
 procedure TDMCadDuplicata.qryContasBeforeScroll(DataSet: TDataSet);

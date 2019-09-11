@@ -27,7 +27,6 @@ object frmConsPadrao: TfrmConsPadrao
     Color = 16744576
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 782
     object Label1: TLabel
       Left = 24
       Top = 30
@@ -52,7 +51,6 @@ object frmConsPadrao: TfrmConsPadrao
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitLeft = 668
       object btnFechar: TSMButton
         Left = 12
         Top = 9
@@ -85,8 +83,6 @@ object frmConsPadrao: TfrmConsPadrao
     Height = 396
     Align = alClient
     TabOrder = 1
-    ExplicitWidth = 782
-    ExplicitHeight = 386
     object pg_Principal: TPageControl
       Left = 1
       Top = 1
@@ -95,12 +91,8 @@ object frmConsPadrao: TfrmConsPadrao
       ActivePage = ts_Consulta
       Align = alClient
       TabOrder = 0
-      ExplicitWidth = 780
-      ExplicitHeight = 384
       object ts_Consulta: TTabSheet
         Caption = 'Consulta'
-        ExplicitWidth = 772
-        ExplicitHeight = 356
         object SMDBGrid1: TSMDBGrid
           Left = 0
           Top = 0
@@ -108,6 +100,7 @@ object frmConsPadrao: TfrmConsPadrao
           Height = 366
           Align = alClient
           DataSource = dsConsulta
+          DrawingStyle = gdsGradient
           Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgMultiSelect, dgTitleClick, dgTitleHotTrack]
           TabOrder = 0
           TitleFont.Charset = DEFAULT_CHARSET

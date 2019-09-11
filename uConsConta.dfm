@@ -1,6 +1,8 @@
 inherited frmConsConta: TfrmConsConta
-  Caption = 'frmConsConta'
+  Caption = 'Consulta Contas'
   Position = poDesigned
+  ExplicitWidth = 798
+  ExplicitHeight = 513
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlTop: TPanel

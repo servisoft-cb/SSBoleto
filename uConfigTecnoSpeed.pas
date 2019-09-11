@@ -38,12 +38,18 @@ var
   vSql : String;
   _vQry : TFDQuery;
 begin
+  if ID = 0 then
+    raise Exception.Create('Filial não informada na SoftwareHouse!');
+
+  if Tipo = 0 then
+    raise Exception.Create('Tipo não informado!');
+
   _Dados := TBaseDao.Create;
   _vQry := TFDQuery.Create(nil);
   vSql := 'select F.CNPJ_CPF, FS.TIPO, FS.TOKEN, FS.CNPJ, FS.AMBIENTE_ENVIO, FS.URL_PRODUCAO, FS.URL_HOMOLOGACAO ' +
           'from FILIAL F ' +
           'left join FILIAL_SOFTWAREHOUSE FS ON F.ID = FS.ID ' +
-          'where FS.ID = 1 and FS.TIPO = 1';
+          'where FS.ID = ' + IntToStr(ID) +' and FS.TIPO = ' + IntToStr(Tipo);
    _vQry := _Dados.RetornaDataSet(vSql);
   Token := _vQry.FieldByName('Token').Value;
   CNPJSH := _vQry.FieldByName('CNPJ').Value;

@@ -6,730 +6,15 @@ object DMCadDuplicata: TDMCadDuplicata
   object qryDuplicata: TFDQuery
     Connection = DMConection.FDConnection
     SQL.Strings = (
-      
-        'select DUP.*, CLI.NOME NOME_CLIENTE, CT.NOME NOME_CONTA, CART.CO' +
-        'DIGO COD_CARTEIRA, CART.CODIGO_IMP COD_CARTEIRA_IMP,'
-      
-        '       CART.NOME NOME_CARTEIRA, CART.GERAR_NOSSONUMERO, CLI.PESS' +
-        'OA, CLI.CNPJ_CPF, CLI.ENDERECO, CLI.NUM_END, CLI.CEP,'
-      
-        '       CLI.BAIRRO, CLI.CIDADE, CLI.UF, CLI.PESSOA_PGTO, CLI.ENDE' +
-        'RECO_PGTO, CLI.NUM_END_PGTO, CLI.CEP_PGTO,'
-      
-        '       CLI.BAIRRO_PGTO, CLI.CIDADE_PGTO, CLI.UF_PGTO, CLI.CNPJ_C' +
-        'PG_PGTO, CLI.EMAIL_PGTO, CLI.COMPLEMENTO_END,'
-      
-        '       CLI.COMPLEMENTO_END_PGTO, CART.GERAR_REMESSA, CLI.ID_GRUP' +
-        'O, GP.NOME NOME_GRUPO,'
-      
-        '       CLI.ID_CARTEIRA ID_CARTEIRA_CLIENTE, CLI.COBRAR_TAXA_BANC' +
-        'O TAXA_BANCO, NF.TIPO_REG, NF.NFECHAVEACESSO,'
-      '       NS.COD_AUTENCIDADE_RET,'
-      'CASE'
-      '  WHEN DCOB.id_ocorrencia > 0 THEN DCOB.ID_OCORRENCIA'
-      '  ELSE :ID_OCORRENCIA'
-      '  END ID_OCORRENCIA_COB'
-      'from DUPLICATA DUP'
-      'inner join PESSOA CLI on (DUP.ID_PESSOA = CLI.CODIGO)'
-      'left join CONTAS CT on (DUP.ID_CONTA_BOLETO = CT.ID)'
-      'left join COB_CARTEIRA CART on (DUP.ID_CARTEIRA = CART.ID)'
-      'left join TIPOCOBRANCA TC on (DUP.ID_TIPOCOBRANCA = TC.ID)'
-      'left join NOTAFISCAL NF on DUP.ID_NOTA = NF.ID'
-      'left join GRUPO_PESSOA GP on CLI.ID_GRUPO = GP.ID'
-      'left join NOTASERVICO NS on DUP.ID_NOTA_SERVICO = NS.ID  '
-      'left join duplicata_cob dcob'
-      '  ON DUP.ID = DCOB.ID'
-      '  AND DCOB.DTREMESSA IS NULL'
-      '')
+      'SELECT * FROM DUPLICATA'
+      'WHERE ID = :ID')
     Left = 32
     Top = 32
     ParamData = <
       item
-        Name = 'ID_OCORRENCIA'
-        DataType = ftInteger
+        Name = 'ID'
         ParamType = ptInput
-        Value = Null
       end>
-    object qryDuplicataID: TIntegerField
-      FieldName = 'ID'
-      Origin = 'ID'
-      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
-      Required = True
-    end
-    object qryDuplicataTIPO_ES: TStringField
-      DisplayLabel = 'Ent/Sai'
-      FieldName = 'TIPO_ES'
-      Origin = 'TIPO_ES'
-      Size = 1
-    end
-    object qryDuplicataFILIAL: TIntegerField
-      DisplayLabel = 'Filial'
-      FieldName = 'FILIAL'
-      Origin = 'FILIAL'
-    end
-    object qryDuplicataID_NOTA: TIntegerField
-      DisplayLabel = 'Id Nota'
-      FieldName = 'ID_NOTA'
-      Origin = 'ID_NOTA'
-    end
-    object qryDuplicataPARCELA: TIntegerField
-      DisplayLabel = 'Parcela'
-      FieldName = 'PARCELA'
-      Origin = 'PARCELA'
-    end
-    object qryDuplicataNUMDUPLICATA: TStringField
-      DisplayLabel = 'N'#186' Dup'
-      FieldName = 'NUMDUPLICATA'
-      Origin = 'NUMDUPLICATA'
-    end
-    object qryDuplicataNUMNOTA: TIntegerField
-      DisplayLabel = 'N'#186' Nota'
-      FieldName = 'NUMNOTA'
-      Origin = 'NUMNOTA'
-    end
-    object qryDuplicataSERIE: TStringField
-      DisplayLabel = 'S'#233'rie'
-      FieldName = 'SERIE'
-      Origin = 'SERIE'
-      Size = 3
-    end
-    object qryDuplicataDTVENCIMENTO: TDateField
-      DisplayLabel = 'Dt Venc'
-      FieldName = 'DTVENCIMENTO'
-      Origin = 'DTVENCIMENTO'
-    end
-    object qryDuplicataVLR_PARCELA: TFloatField
-      DisplayLabel = 'Vlr Parcela'
-      FieldName = 'VLR_PARCELA'
-      Origin = 'VLR_PARCELA'
-      DisplayFormat = ',0.00'
-      EditFormat = ',0.00'
-    end
-    object qryDuplicataVLR_RESTANTE: TFloatField
-      DisplayLabel = 'Vlr Restante'
-      FieldName = 'VLR_RESTANTE'
-      Origin = 'VLR_RESTANTE'
-      DisplayFormat = ',0.00'
-      EditFormat = ',0.00'
-    end
-    object qryDuplicataVLR_PAGO: TFloatField
-      DisplayLabel = 'Vlr Pago'
-      FieldName = 'VLR_PAGO'
-      Origin = 'VLR_PAGO'
-      DisplayFormat = ',0.00'
-      EditFormat = ',0.00'
-    end
-    object qryDuplicataVLR_DEVOLUCAO: TFloatField
-      DisplayLabel = 'Vlr Devolu'#231#227'o'
-      FieldName = 'VLR_DEVOLUCAO'
-      Origin = 'VLR_DEVOLUCAO'
-      DisplayFormat = ',0.00'
-      EditFormat = ',0.00'
-    end
-    object qryDuplicataVLR_DESPESAS: TFloatField
-      DisplayLabel = 'Vlr Despesa'
-      FieldName = 'VLR_DESPESAS'
-      Origin = 'VLR_DESPESAS'
-      DisplayFormat = ',0.00'
-      EditFormat = ',0.00'
-    end
-    object qryDuplicataVLR_DESCONTO: TFloatField
-      DisplayLabel = 'Vlr Desconto'
-      FieldName = 'VLR_DESCONTO'
-      Origin = 'VLR_DESCONTO'
-      DisplayFormat = ',0.00'
-      EditFormat = ',0.00'
-    end
-    object qryDuplicataVLR_JUROSPAGOS: TFloatField
-      DisplayLabel = 'Vlr Juros'
-      FieldName = 'VLR_JUROSPAGOS'
-      Origin = 'VLR_JUROSPAGOS'
-      DisplayFormat = ',0.00'
-      EditFormat = ',0.00'
-    end
-    object qryDuplicataVLR_COMISSAO: TFloatField
-      DisplayLabel = 'Vlr Comiss'#227'o'
-      FieldName = 'VLR_COMISSAO'
-      Origin = 'VLR_COMISSAO'
-      DisplayFormat = ',0.00'
-      EditFormat = ',0.00'
-    end
-    object qryDuplicataPERC_COMISSAO: TFloatField
-      DisplayLabel = '% Comiss'#227'o'
-      FieldName = 'PERC_COMISSAO'
-      Origin = 'PERC_COMISSAO'
-      DisplayFormat = ',0.00'
-      EditFormat = ',0.00'
-    end
-    object qryDuplicataDTULTPAGAMENTO: TDateField
-      DisplayLabel = 'Dt Ult Pagto'
-      FieldName = 'DTULTPAGAMENTO'
-      Origin = 'DTULTPAGAMENTO'
-    end
-    object qryDuplicataID_PESSOA: TIntegerField
-      FieldName = 'ID_PESSOA'
-      Origin = 'ID_PESSOA'
-    end
-    object qryDuplicataID_CONTA: TIntegerField
-      FieldName = 'ID_CONTA'
-      Origin = 'ID_CONTA'
-    end
-    object qryDuplicataID_TIPOCOBRANCA: TIntegerField
-      FieldName = 'ID_TIPOCOBRANCA'
-      Origin = 'ID_TIPOCOBRANCA'
-    end
-    object qryDuplicataID_VENDEDOR: TIntegerField
-      FieldName = 'ID_VENDEDOR'
-      Origin = 'ID_VENDEDOR'
-    end
-    object qryDuplicataID_CONTA_BOLETO: TIntegerField
-      FieldName = 'ID_CONTA_BOLETO'
-      Origin = 'ID_CONTA_BOLETO'
-    end
-    object qryDuplicataID_COMISSAO: TIntegerField
-      FieldName = 'ID_COMISSAO'
-      Origin = 'ID_COMISSAO'
-    end
-    object qryDuplicataQTD_DIASATRASO: TIntegerField
-      FieldName = 'QTD_DIASATRASO'
-      Origin = 'QTD_DIASATRASO'
-    end
-    object qryDuplicataDTRECEBIMENTO_TITULO: TDateField
-      FieldName = 'DTRECEBIMENTO_TITULO'
-      Origin = 'DTRECEBIMENTO_TITULO'
-    end
-    object qryDuplicataDTEMISSAO: TDateField
-      DisplayLabel = 'Dt Emiss'#227'o'
-      FieldName = 'DTEMISSAO'
-      Origin = 'DTEMISSAO'
-    end
-    object qryDuplicataPAGO_CARTORIO: TStringField
-      FieldName = 'PAGO_CARTORIO'
-      Origin = 'PAGO_CARTORIO'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataPROTESTADO: TStringField
-      FieldName = 'PROTESTADO'
-      Origin = 'PROTESTADO'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataTIPO_LANCAMENTO: TStringField
-      FieldName = 'TIPO_LANCAMENTO'
-      Origin = 'TIPO_LANCAMENTO'
-      Size = 3
-    end
-    object qryDuplicataARQUIVO_GERADO: TStringField
-      FieldName = 'ARQUIVO_GERADO'
-      Origin = 'ARQUIVO_GERADO'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataTRANSFERENCIA_ICMS: TStringField
-      FieldName = 'TRANSFERENCIA_ICMS'
-      Origin = 'TRANSFERENCIA_ICMS'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataNOSSONUMERO: TStringField
-      FieldName = 'NOSSONUMERO'
-      Origin = 'NOSSONUMERO'
-    end
-    object qryDuplicataDTFINANCEIRO: TDateField
-      FieldName = 'DTFINANCEIRO'
-      Origin = 'DTFINANCEIRO'
-    end
-    object qryDuplicataNUMCHEQUE: TIntegerField
-      FieldName = 'NUMCHEQUE'
-      Origin = 'NUMCHEQUE'
-    end
-    object qryDuplicataACEITE: TStringField
-      FieldName = 'ACEITE'
-      Origin = 'ACEITE'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataID_COB_ELETRONICA: TIntegerField
-      FieldName = 'ID_COB_ELETRONICA'
-      Origin = 'ID_COB_ELETRONICA'
-    end
-    object qryDuplicataBOLETO_IMP: TStringField
-      FieldName = 'BOLETO_IMP'
-      Origin = 'BOLETO_IMP'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataID_CARTEIRA: TIntegerField
-      FieldName = 'ID_CARTEIRA'
-      Origin = 'ID_CARTEIRA'
-    end
-    object qryDuplicataID_BANCO: TIntegerField
-      FieldName = 'ID_BANCO'
-      Origin = 'ID_BANCO'
-    end
-    object qryDuplicataIMP_BOLETO: TStringField
-      FieldName = 'IMP_BOLETO'
-      Origin = 'IMP_BOLETO'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataNUM_REMESSA: TIntegerField
-      FieldName = 'NUM_REMESSA'
-      Origin = 'NUM_REMESSA'
-    end
-    object qryDuplicataID_NOTA_SERVICO: TIntegerField
-      FieldName = 'ID_NOTA_SERVICO'
-      Origin = 'ID_NOTA_SERVICO'
-    end
-    object qryDuplicataDESCRICAO: TStringField
-      FieldName = 'DESCRICAO'
-      Origin = 'DESCRICAO'
-      Size = 70
-    end
-    object qryDuplicataNUMRPS: TIntegerField
-      FieldName = 'NUMRPS'
-      Origin = 'NUMRPS'
-    end
-    object qryDuplicataANO_REF: TIntegerField
-      FieldName = 'ANO_REF'
-      Origin = 'ANO_REF'
-    end
-    object qryDuplicataMES_REF: TIntegerField
-      FieldName = 'MES_REF'
-      Origin = 'MES_REF'
-    end
-    object qryDuplicataNUM_CONTRATO: TIntegerField
-      FieldName = 'NUM_CONTRATO'
-      Origin = 'NUM_CONTRATO'
-    end
-    object qryDuplicataID_CONTA_ORCAMENTO: TIntegerField
-      FieldName = 'ID_CONTA_ORCAMENTO'
-      Origin = 'ID_CONTA_ORCAMENTO'
-    end
-    object qryDuplicataID_CUPOM: TIntegerField
-      FieldName = 'ID_CUPOM'
-      Origin = 'ID_CUPOM'
-    end
-    object qryDuplicataVLR_TAXA_BANCARIA: TFloatField
-      FieldName = 'VLR_TAXA_BANCARIA'
-      Origin = 'VLR_TAXA_BANCARIA'
-    end
-    object qryDuplicataCOBRAR_TAXA: TStringField
-      FieldName = 'COBRAR_TAXA'
-      Origin = 'COBRAR_TAXA'
-      Size = 1
-    end
-    object qryDuplicataID_TERMINAL: TIntegerField
-      FieldName = 'ID_TERMINAL'
-      Origin = 'ID_TERMINAL'
-    end
-    object qryDuplicataID_FECHAMENTO: TIntegerField
-      FieldName = 'ID_FECHAMENTO'
-      Origin = 'ID_FECHAMENTO'
-    end
-    object qryDuplicataTIPO_MOV: TStringField
-      FieldName = 'TIPO_MOV'
-      Origin = 'TIPO_MOV'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataNOSSONUMERO_SEQ: TLargeintField
-      FieldName = 'NOSSONUMERO_SEQ'
-      Origin = 'NOSSONUMERO_SEQ'
-    end
-    object qryDuplicataNOSSONUMERO_GERADO: TStringField
-      FieldName = 'NOSSONUMERO_GERADO'
-      Origin = 'NOSSONUMERO_GERADO'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataNUMDUPLICATA_SEQ: TIntegerField
-      FieldName = 'NUMDUPLICATA_SEQ'
-      Origin = 'NUMDUPLICATA_SEQ'
-    end
-    object qryDuplicataID_RECIBO: TIntegerField
-      FieldName = 'ID_RECIBO'
-      Origin = 'ID_RECIBO'
-    end
-    object qryDuplicataID_PEDIDO: TIntegerField
-      FieldName = 'ID_PEDIDO'
-      Origin = 'ID_PEDIDO'
-    end
-    object qryDuplicataPERC_COMISSAO_PAGAR_NOTA: TFloatField
-      FieldName = 'PERC_COMISSAO_PAGAR_NOTA'
-      Origin = 'PERC_COMISSAO_PAGAR_NOTA'
-    end
-    object qryDuplicataUSUARIO: TStringField
-      FieldName = 'USUARIO'
-      Origin = 'USUARIO'
-    end
-    object qryDuplicataTITULO_CARTORIO: TStringField
-      FieldName = 'TITULO_CARTORIO'
-      Origin = 'TITULO_CARTORIO'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataID_DESCONTADA: TIntegerField
-      FieldName = 'ID_DESCONTADA'
-      Origin = 'ID_DESCONTADA'
-    end
-    object qryDuplicataCONFIRMA_PGTO: TStringField
-      FieldName = 'CONFIRMA_PGTO'
-      Origin = 'CONFIRMA_PGTO'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataCOD_ANT: TIntegerField
-      FieldName = 'COD_ANT'
-      Origin = 'COD_ANT'
-    end
-    object qryDuplicataPERC_BASE_COMISSAO: TFloatField
-      FieldName = 'PERC_BASE_COMISSAO'
-      Origin = 'PERC_BASE_COMISSAO'
-    end
-    object qryDuplicataEMISSAO_BOLETO: TStringField
-      FieldName = 'EMISSAO_BOLETO'
-      Origin = 'EMISSAO_BOLETO'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataDESCRICAO2: TStringField
-      FieldName = 'DESCRICAO2'
-      Origin = 'DESCRICAO2'
-      Size = 100
-    end
-    object qryDuplicataID_CONTRATO: TIntegerField
-      FieldName = 'ID_CONTRATO'
-      Origin = 'ID_CONTRATO'
-    end
-    object qryDuplicataVLR_MULTA: TFloatField
-      FieldName = 'VLR_MULTA'
-      Origin = 'VLR_MULTA'
-    end
-    object qryDuplicataID_CONTABIL_OPE_LACTO: TIntegerField
-      FieldName = 'ID_CONTABIL_OPE_LACTO'
-      Origin = 'ID_CONTABIL_OPE_LACTO'
-    end
-    object qryDuplicataID_CONTABIL_OPE_BAIXA: TIntegerField
-      FieldName = 'ID_CONTABIL_OPE_BAIXA'
-      Origin = 'ID_CONTABIL_OPE_BAIXA'
-    end
-    object qryDuplicataREGIME_CAIXA: TStringField
-      FieldName = 'REGIME_CAIXA'
-      Origin = 'REGIME_CAIXA'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataPERDIDO: TStringField
-      FieldName = 'PERDIDO'
-      Origin = 'PERDIDO'
-      Size = 1
-    end
-    object qryDuplicataINSTRUCAO_PROTESTO: TStringField
-      FieldName = 'INSTRUCAO_PROTESTO'
-      Origin = 'INSTRUCAO_PROTESTO'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataNGR: TStringField
-      FieldName = 'NGR'
-      Origin = 'NGR'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataAPROVADO: TStringField
-      FieldName = 'APROVADO'
-      Origin = 'APROVADO'
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataDTAPROVADO: TDateField
-      FieldName = 'DTAPROVADO'
-      Origin = 'DTAPROVADO'
-    end
-    object qryDuplicataCANCELADA: TStringField
-      FieldName = 'CANCELADA'
-      Origin = 'CANCELADA'
-      Size = 1
-    end
-    object qryDuplicataDTVENCIMENTO_INI: TDateField
-      FieldName = 'DTVENCIMENTO_INI'
-      Origin = 'DTVENCIMENTO_INI'
-    end
-    object qryDuplicataNOME_CLIENTE: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'NOME_CLIENTE'
-      Origin = 'NOME'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 60
-    end
-    object qryDuplicataNOME_CONTA: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'NOME_CONTA'
-      Origin = 'NOME'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 30
-    end
-    object qryDuplicataCOD_CARTEIRA: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'COD_CARTEIRA'
-      Origin = 'CODIGO'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 3
-    end
-    object qryDuplicataCOD_CARTEIRA_IMP: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'COD_CARTEIRA_IMP'
-      Origin = 'CODIGO_IMP'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 7
-    end
-    object qryDuplicataNOME_CARTEIRA: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'NOME_CARTEIRA'
-      Origin = 'NOME'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 100
-    end
-    object qryDuplicataGERAR_NOSSONUMERO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'GERAR_NOSSONUMERO'
-      Origin = 'GERAR_NOSSONUMERO'
-      ProviderFlags = []
-      ReadOnly = True
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataPESSOA: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'PESSOA'
-      Origin = 'PESSOA'
-      ProviderFlags = []
-      ReadOnly = True
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataCNPJ_CPF: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'CNPJ_CPF'
-      Origin = 'CNPJ_CPF'
-      ProviderFlags = []
-      ReadOnly = True
-    end
-    object qryDuplicataENDERECO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'ENDERECO'
-      Origin = 'ENDERECO'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 60
-    end
-    object qryDuplicataNUM_END: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'NUM_END'
-      Origin = 'NUM_END'
-      ProviderFlags = []
-      ReadOnly = True
-    end
-    object qryDuplicataCEP: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'CEP'
-      Origin = 'CEP'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 10
-    end
-    object qryDuplicataBAIRRO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'BAIRRO'
-      Origin = 'BAIRRO'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 30
-    end
-    object qryDuplicataCIDADE: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'CIDADE'
-      Origin = 'CIDADE'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 40
-    end
-    object qryDuplicataUF: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'UF'
-      Origin = 'UF'
-      ProviderFlags = []
-      ReadOnly = True
-      FixedChar = True
-      Size = 2
-    end
-    object qryDuplicataPESSOA_PGTO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'PESSOA_PGTO'
-      Origin = 'PESSOA_PGTO'
-      ProviderFlags = []
-      ReadOnly = True
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataENDERECO_PGTO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'ENDERECO_PGTO'
-      Origin = 'ENDERECO_PGTO'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 40
-    end
-    object qryDuplicataNUM_END_PGTO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'NUM_END_PGTO'
-      Origin = 'NUM_END_PGTO'
-      ProviderFlags = []
-      ReadOnly = True
-    end
-    object qryDuplicataCEP_PGTO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'CEP_PGTO'
-      Origin = 'CEP_PGTO'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 10
-    end
-    object qryDuplicataBAIRRO_PGTO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'BAIRRO_PGTO'
-      Origin = 'BAIRRO_PGTO'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 26
-    end
-    object qryDuplicataCIDADE_PGTO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'CIDADE_PGTO'
-      Origin = 'CIDADE_PGTO'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 40
-    end
-    object qryDuplicataUF_PGTO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'UF_PGTO'
-      Origin = 'UF_PGTO'
-      ProviderFlags = []
-      ReadOnly = True
-      FixedChar = True
-      Size = 2
-    end
-    object qryDuplicataCNPJ_CPG_PGTO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'CNPJ_CPG_PGTO'
-      Origin = 'CNPJ_CPG_PGTO'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 18
-    end
-    object qryDuplicataEMAIL_PGTO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'EMAIL_PGTO'
-      Origin = 'EMAIL_PGTO'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 150
-    end
-    object qryDuplicataCOMPLEMENTO_END: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'COMPLEMENTO_END'
-      Origin = 'COMPLEMENTO_END'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 60
-    end
-    object qryDuplicataCOMPLEMENTO_END_PGTO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'COMPLEMENTO_END_PGTO'
-      Origin = 'COMPLEMENTO_END_PGTO'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 60
-    end
-    object qryDuplicataGERAR_REMESSA: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'GERAR_REMESSA'
-      Origin = 'GERAR_REMESSA'
-      ProviderFlags = []
-      ReadOnly = True
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataID_GRUPO: TIntegerField
-      AutoGenerateValue = arDefault
-      FieldName = 'ID_GRUPO'
-      Origin = 'ID_GRUPO'
-      ProviderFlags = []
-      ReadOnly = True
-    end
-    object qryDuplicataNOME_GRUPO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'NOME_GRUPO'
-      Origin = 'NOME'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 40
-    end
-    object qryDuplicataID_CARTEIRA_CLIENTE: TIntegerField
-      AutoGenerateValue = arDefault
-      FieldName = 'ID_CARTEIRA_CLIENTE'
-      Origin = 'ID_CARTEIRA'
-      ProviderFlags = []
-      ReadOnly = True
-    end
-    object qryDuplicataTAXA_BANCO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'TAXA_BANCO'
-      Origin = 'COBRAR_TAXA_BANCO'
-      ProviderFlags = []
-      ReadOnly = True
-      FixedChar = True
-      Size = 1
-    end
-    object qryDuplicataTIPO_REG: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'TIPO_REG'
-      Origin = 'TIPO_REG'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 3
-    end
-    object qryDuplicataNFECHAVEACESSO: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'NFECHAVEACESSO'
-      Origin = 'NFECHAVEACESSO'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 44
-    end
-    object qryDuplicataCOD_AUTENCIDADE_RET: TStringField
-      AutoGenerateValue = arDefault
-      FieldName = 'COD_AUTENCIDADE_RET'
-      Origin = 'COD_AUTENCIDADE_RET'
-      ProviderFlags = []
-      ReadOnly = True
-      Size = 15
-    end
-    object qryDuplicataID_OCORRENCIA_COB: TIntegerField
-      AutoGenerateValue = arDefault
-      FieldName = 'ID_OCORRENCIA_COB'
-      Origin = 'ID_OCORRENCIA_COB'
-      ProviderFlags = []
-      ReadOnly = True
-    end
   end
   object qryContas: TFDQuery
     BeforeScroll = qryContasBeforeScroll
@@ -1249,7 +534,7 @@ object DMCadDuplicata: TDMCadDuplicata
   end
   object dsContas: TDataSource
     DataSet = qryContas
-    Left = 64
+    Left = 72
     Top = 89
   end
   object qryOcorrencia: TFDQuery
@@ -1349,7 +634,464 @@ object DMCadDuplicata: TDMCadDuplicata
   end
   object dsOcorrencia: TDataSource
     DataSet = qryOcorrencia
-    Left = 64
+    Left = 72
     Top = 145
+  end
+  object qryConsulta_Duplicata: TFDQuery
+    Connection = DMConection.FDConnection
+    SQL.Strings = (
+      
+        'select DUP.ID, DUP.TIPO_ES, DUP.FILIAL, DUP.ID_NOTA, DUP.PARCELA' +
+        ', DUP.NUMDUPLICATA, DUP.NUMNOTA, DUP.SERIE, DUP. DTEMISSAO,'
+      
+        '       DUP.DTVENCIMENTO, DUP.VLR_PARCELA, DUP.VLR_RESTANTE, DUP.' +
+        'VLR_PAGO, DUP.VLR_DESCONTO, DUP.ID_PESSOA,'
+      
+        '       DUP.ID_TIPOCOBRANCA, DUP.DTULTPAGAMENTO, DUP.ID_CONTA_BOL' +
+        'ETO, DUP.ID_INTEGRACAO, CLI.NOME NOME_CLIENTE,'
+      
+        '       CT.NOME NOME_CONTA, CART.CODIGO COD_CARTEIRA, CART.CODIGO' +
+        '_IMP COD_CARTEIRA_IMP, CART.NOME NOME_CARTEIRA,'
+      
+        '       CART.GERAR_NOSSONUMERO, CLI.PESSOA, CLI.CNPJ_CPF, CLI.END' +
+        'ERECO, CLI.NUM_END, CLI.CEP, CLI.BAIRRO, CLI.CIDADE,'
+      
+        '       CLI.UF, CLI.PESSOA_PGTO, CLI.ENDERECO_PGTO, CLI.NUM_END_P' +
+        'GTO, CLI.CEP_PGTO, CLI.BAIRRO_PGTO, CLI.CIDADE_PGTO,'
+      
+        '       CLI.UF_PGTO, CLI.CNPJ_CPG_PGTO, CLI.EMAIL_PGTO, CLI.COMPL' +
+        'EMENTO_END, CLI.COMPLEMENTO_END_PGTO,DUP.ID_CONTA,'
+      
+        '       CART.GERAR_REMESSA, CLI.ID_GRUPO, GP.NOME NOME_GRUPO, CLI' +
+        '.ID_CARTEIRA ID_CARTEIRA_CLIENTE,'
+      
+        '       CLI.COBRAR_TAXA_BANCO TAXA_BANCO, NF.TIPO_REG, NF.NFECHAV' +
+        'EACESSO, NS.COD_AUTENCIDADE_RET,'
+      '       case'
+      '         when DCOB.ID_OCORRENCIA > 0 then DCOB.ID_OCORRENCIA'
+      '         else :ID_OCORRENCIA'
+      '       end ID_OCORRENCIA_COB'
+      'from DUPLICATA DUP'
+      'inner join PESSOA CLI on (DUP.ID_PESSOA = CLI.CODIGO)'
+      'left join CONTAS CT on (DUP.ID_CONTA_BOLETO = CT.ID)'
+      'left join COB_CARTEIRA CART on (DUP.ID_CARTEIRA = CART.ID)'
+      'left join TIPOCOBRANCA TC on (DUP.ID_TIPOCOBRANCA = TC.ID)'
+      'left join NOTAFISCAL NF on DUP.ID_NOTA = NF.ID'
+      'left join GRUPO_PESSOA GP on CLI.ID_GRUPO = GP.ID'
+      'left join NOTASERVICO NS on DUP.ID_NOTA_SERVICO = NS.ID'
+      
+        'left join DUPLICATA_COB DCOB on DUP.ID = DCOB.ID and DCOB.DTREME' +
+        'SSA is null  ')
+    Left = 128
+    Top = 32
+    ParamData = <
+      item
+        Name = 'ID_OCORRENCIA'
+        DataType = ftInteger
+        ParamType = ptInput
+        Value = Null
+      end>
+    object qryConsulta_DuplicataID: TIntegerField
+      FieldName = 'ID'
+      Origin = 'ID'
+      ProviderFlags = [pfInUpdate, pfInWhere, pfInKey]
+      Required = True
+    end
+    object qryConsulta_DuplicataTIPO_ES: TStringField
+      DisplayLabel = 'Ent/Sai'
+      FieldName = 'TIPO_ES'
+      Origin = 'TIPO_ES'
+      Size = 1
+    end
+    object qryConsulta_DuplicataFILIAL: TIntegerField
+      DisplayLabel = 'Filial'
+      FieldName = 'FILIAL'
+      Origin = 'FILIAL'
+    end
+    object qryConsulta_DuplicataID_NOTA: TIntegerField
+      DisplayLabel = 'Id Nota'
+      FieldName = 'ID_NOTA'
+      Origin = 'ID_NOTA'
+    end
+    object qryConsulta_DuplicataPARCELA: TIntegerField
+      DisplayLabel = 'Parcela'
+      FieldName = 'PARCELA'
+      Origin = 'PARCELA'
+    end
+    object qryConsulta_DuplicataNUMDUPLICATA: TStringField
+      DisplayLabel = 'N'#186' Duplicata'
+      FieldName = 'NUMDUPLICATA'
+      Origin = 'NUMDUPLICATA'
+    end
+    object qryConsulta_DuplicataNUMNOTA: TIntegerField
+      DisplayLabel = 'N'#186' Nota'
+      FieldName = 'NUMNOTA'
+      Origin = 'NUMNOTA'
+    end
+    object qryConsulta_DuplicataSERIE: TStringField
+      DisplayLabel = 'S'#233'rie'
+      FieldName = 'SERIE'
+      Origin = 'SERIE'
+      Size = 3
+    end
+    object qryConsulta_DuplicataDTVENCIMENTO: TDateField
+      DisplayLabel = 'Dt Vecto'
+      FieldName = 'DTVENCIMENTO'
+      Origin = 'DTVENCIMENTO'
+    end
+    object qryConsulta_DuplicataVLR_PARCELA: TFloatField
+      DisplayLabel = 'Vlr Parcela'
+      FieldName = 'VLR_PARCELA'
+      Origin = 'VLR_PARCELA'
+      DisplayFormat = ',0.00'
+      EditFormat = ',0.00'
+    end
+    object qryConsulta_DuplicataVLR_RESTANTE: TFloatField
+      DisplayLabel = 'Vlr Restante'
+      FieldName = 'VLR_RESTANTE'
+      Origin = 'VLR_RESTANTE'
+      DisplayFormat = ',0.00'
+      EditFormat = ',0.00'
+    end
+    object qryConsulta_DuplicataVLR_PAGO: TFloatField
+      DisplayLabel = 'Vlr Pago'
+      FieldName = 'VLR_PAGO'
+      Origin = 'VLR_PAGO'
+      DisplayFormat = ',0.00'
+      EditFormat = ',0.00'
+    end
+    object qryConsulta_DuplicataVLR_DESCONTO: TFloatField
+      DisplayLabel = 'Vlr Desconto'
+      FieldName = 'VLR_DESCONTO'
+      Origin = 'VLR_DESCONTO'
+      DisplayFormat = ',0.00'
+      EditFormat = ',0.00'
+    end
+    object qryConsulta_DuplicataID_PESSOA: TIntegerField
+      DisplayLabel = 'Id Pessoa'
+      FieldName = 'ID_PESSOA'
+      Origin = 'ID_PESSOA'
+    end
+    object qryConsulta_DuplicataID_TIPOCOBRANCA: TIntegerField
+      DisplayLabel = 'ID Tipo Cob.'
+      FieldName = 'ID_TIPOCOBRANCA'
+      Origin = 'ID_TIPOCOBRANCA'
+    end
+    object qryConsulta_DuplicataDTULTPAGAMENTO: TDateField
+      DisplayLabel = 'Dt Ult Pagto'
+      FieldName = 'DTULTPAGAMENTO'
+      Origin = 'DTULTPAGAMENTO'
+    end
+    object qryConsulta_DuplicataID_CONTA_BOLETO: TIntegerField
+      DisplayLabel = 'Id Conta Boleto'
+      FieldName = 'ID_CONTA_BOLETO'
+      Origin = 'ID_CONTA_BOLETO'
+    end
+    object qryConsulta_DuplicataNOME_CLIENTE: TStringField
+      AutoGenerateValue = arDefault
+      DisplayLabel = 'Nome Cliente'
+      FieldName = 'NOME_CLIENTE'
+      Origin = 'NOME'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 60
+    end
+    object qryConsulta_DuplicataNOME_CONTA: TStringField
+      AutoGenerateValue = arDefault
+      DisplayLabel = 'Nome Conta'
+      FieldName = 'NOME_CONTA'
+      Origin = 'NOME'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 30
+    end
+    object qryConsulta_DuplicataCOD_CARTEIRA: TStringField
+      AutoGenerateValue = arDefault
+      DisplayLabel = 'Cod Carteira'
+      FieldName = 'COD_CARTEIRA'
+      Origin = 'CODIGO'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 3
+    end
+    object qryConsulta_DuplicataCOD_CARTEIRA_IMP: TStringField
+      AutoGenerateValue = arDefault
+      DisplayLabel = 'Cod Carteira Imp'
+      FieldName = 'COD_CARTEIRA_IMP'
+      Origin = 'CODIGO_IMP'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 7
+    end
+    object qryConsulta_DuplicataNOME_CARTEIRA: TStringField
+      AutoGenerateValue = arDefault
+      DisplayLabel = 'Nome Carteira'
+      FieldName = 'NOME_CARTEIRA'
+      Origin = 'NOME'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 100
+    end
+    object qryConsulta_DuplicataGERAR_NOSSONUMERO: TStringField
+      AutoGenerateValue = arDefault
+      DisplayLabel = 'Gerar Nosso N'#250'mero'
+      FieldName = 'GERAR_NOSSONUMERO'
+      Origin = 'GERAR_NOSSONUMERO'
+      ProviderFlags = []
+      ReadOnly = True
+      FixedChar = True
+      Size = 1
+    end
+    object qryConsulta_DuplicataPESSOA: TStringField
+      AutoGenerateValue = arDefault
+      DisplayLabel = 'Pessoa'
+      FieldName = 'PESSOA'
+      Origin = 'PESSOA'
+      ProviderFlags = []
+      ReadOnly = True
+      FixedChar = True
+      Size = 1
+    end
+    object qryConsulta_DuplicataCNPJ_CPF: TStringField
+      AutoGenerateValue = arDefault
+      DisplayLabel = 'CNPJ/CPF'
+      FieldName = 'CNPJ_CPF'
+      Origin = 'CNPJ_CPF'
+      ProviderFlags = []
+      ReadOnly = True
+    end
+    object qryConsulta_DuplicataENDERECO: TStringField
+      AutoGenerateValue = arDefault
+      DisplayLabel = 'Endere'#231'o'
+      FieldName = 'ENDERECO'
+      Origin = 'ENDERECO'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 60
+    end
+    object qryConsulta_DuplicataNUM_END: TStringField
+      AutoGenerateValue = arDefault
+      DisplayLabel = 'Num End'
+      FieldName = 'NUM_END'
+      Origin = 'NUM_END'
+      ProviderFlags = []
+      ReadOnly = True
+    end
+    object qryConsulta_DuplicataCEP: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'CEP'
+      Origin = 'CEP'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 10
+    end
+    object qryConsulta_DuplicataBAIRRO: TStringField
+      AutoGenerateValue = arDefault
+      DisplayLabel = 'Bairro'
+      FieldName = 'BAIRRO'
+      Origin = 'BAIRRO'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 30
+    end
+    object qryConsulta_DuplicataCIDADE: TStringField
+      AutoGenerateValue = arDefault
+      DisplayLabel = 'Cidade'
+      FieldName = 'CIDADE'
+      Origin = 'CIDADE'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 40
+    end
+    object qryConsulta_DuplicataUF: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'UF'
+      Origin = 'UF'
+      ProviderFlags = []
+      ReadOnly = True
+      FixedChar = True
+      Size = 2
+    end
+    object qryConsulta_DuplicataPESSOA_PGTO: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'PESSOA_PGTO'
+      Origin = 'PESSOA_PGTO'
+      ProviderFlags = []
+      ReadOnly = True
+      FixedChar = True
+      Size = 1
+    end
+    object qryConsulta_DuplicataENDERECO_PGTO: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'ENDERECO_PGTO'
+      Origin = 'ENDERECO_PGTO'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 40
+    end
+    object qryConsulta_DuplicataNUM_END_PGTO: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'NUM_END_PGTO'
+      Origin = 'NUM_END_PGTO'
+      ProviderFlags = []
+      ReadOnly = True
+    end
+    object qryConsulta_DuplicataCEP_PGTO: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'CEP_PGTO'
+      Origin = 'CEP_PGTO'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 10
+    end
+    object qryConsulta_DuplicataBAIRRO_PGTO: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'BAIRRO_PGTO'
+      Origin = 'BAIRRO_PGTO'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 26
+    end
+    object qryConsulta_DuplicataCIDADE_PGTO: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'CIDADE_PGTO'
+      Origin = 'CIDADE_PGTO'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 40
+    end
+    object qryConsulta_DuplicataUF_PGTO: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'UF_PGTO'
+      Origin = 'UF_PGTO'
+      ProviderFlags = []
+      ReadOnly = True
+      FixedChar = True
+      Size = 2
+    end
+    object qryConsulta_DuplicataCNPJ_CPG_PGTO: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'CNPJ_CPG_PGTO'
+      Origin = 'CNPJ_CPG_PGTO'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 18
+    end
+    object qryConsulta_DuplicataEMAIL_PGTO: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'EMAIL_PGTO'
+      Origin = 'EMAIL_PGTO'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 150
+    end
+    object qryConsulta_DuplicataCOMPLEMENTO_END: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'COMPLEMENTO_END'
+      Origin = 'COMPLEMENTO_END'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 60
+    end
+    object qryConsulta_DuplicataCOMPLEMENTO_END_PGTO: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'COMPLEMENTO_END_PGTO'
+      Origin = 'COMPLEMENTO_END_PGTO'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 60
+    end
+    object qryConsulta_DuplicataGERAR_REMESSA: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'GERAR_REMESSA'
+      Origin = 'GERAR_REMESSA'
+      ProviderFlags = []
+      ReadOnly = True
+      FixedChar = True
+      Size = 1
+    end
+    object qryConsulta_DuplicataID_GRUPO: TIntegerField
+      AutoGenerateValue = arDefault
+      FieldName = 'ID_GRUPO'
+      Origin = 'ID_GRUPO'
+      ProviderFlags = []
+      ReadOnly = True
+    end
+    object qryConsulta_DuplicataNOME_GRUPO: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'NOME_GRUPO'
+      Origin = 'NOME'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 40
+    end
+    object qryConsulta_DuplicataID_CARTEIRA_CLIENTE: TIntegerField
+      AutoGenerateValue = arDefault
+      FieldName = 'ID_CARTEIRA_CLIENTE'
+      Origin = 'ID_CARTEIRA'
+      ProviderFlags = []
+      ReadOnly = True
+    end
+    object qryConsulta_DuplicataTAXA_BANCO: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'TAXA_BANCO'
+      Origin = 'COBRAR_TAXA_BANCO'
+      ProviderFlags = []
+      ReadOnly = True
+      FixedChar = True
+      Size = 1
+    end
+    object qryConsulta_DuplicataTIPO_REG: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'TIPO_REG'
+      Origin = 'TIPO_REG'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 3
+    end
+    object qryConsulta_DuplicataNFECHAVEACESSO: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'NFECHAVEACESSO'
+      Origin = 'NFECHAVEACESSO'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 44
+    end
+    object qryConsulta_DuplicataCOD_AUTENCIDADE_RET: TStringField
+      AutoGenerateValue = arDefault
+      FieldName = 'COD_AUTENCIDADE_RET'
+      Origin = 'COD_AUTENCIDADE_RET'
+      ProviderFlags = []
+      ReadOnly = True
+      Size = 15
+    end
+    object qryConsulta_DuplicataID_OCORRENCIA_COB: TIntegerField
+      AutoGenerateValue = arDefault
+      FieldName = 'ID_OCORRENCIA_COB'
+      Origin = 'ID_OCORRENCIA_COB'
+      ProviderFlags = []
+      ReadOnly = True
+    end
+    object qryConsulta_DuplicataDTEMISSAO: TDateField
+      DisplayLabel = 'Dt Emiss'#227'o'
+      FieldName = 'DTEMISSAO'
+      Origin = 'DTEMISSAO'
+    end
+    object qryConsulta_DuplicataID_CONTA: TIntegerField
+      DisplayLabel = 'Id Conta'
+      FieldName = 'ID_CONTA'
+      Origin = 'ID_CONTA'
+    end
+    object qryConsulta_DuplicataID_INTEGRACAO: TStringField
+      DisplayLabel = 'Id Integra'#231#227'o'
+      FieldName = 'ID_INTEGRACAO'
+      Origin = 'ID_INTEGRACAO'
+      Size = 30
+    end
+  end
+  object qryConsulta: TFDQuery
+    Connection = DMConection.FDConnection
+    Left = 32
+    Top = 200
   end
 end

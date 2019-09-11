@@ -57,12 +57,13 @@ end;
 
 procedure TfrmConsPadrao.btnFecharClick(Sender: TObject);
 begin
-  Self.Close;
+//  Self.Close;
+  Close;
 end;
 
 procedure TfrmConsPadrao.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  FreeAndNil(Self);
+//  FreeAndNil(Self);
 end;
 
 procedure TfrmConsPadrao.FormCreate(Sender: TObject);

@@ -1,12 +1,15 @@
 inherited frmConsDuplicata: TfrmConsDuplicata
-  Caption = 'frmConsDuplicata'
+  Caption = 'Consulta Duplicata'
+  ClientWidth = 994
   OnShow = FormShow
+  ExplicitWidth = 1000
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlTop: TPanel
-    Height = 99
-    ExplicitWidth = 973
-    ExplicitHeight = 99
+    Width = 994
+    Height = 105
+    ExplicitWidth = 994
+    ExplicitHeight = 105
     inherited Label1: TLabel
       Left = 244
       Top = 13
@@ -63,10 +66,11 @@ inherited frmConsDuplicata: TfrmConsDuplicata
       ExplicitTop = 4
     end
     inherited pnlSair: TPanel
-      Height = 97
+      Left = 880
+      Height = 103
       TabOrder = 0
-      ExplicitLeft = 859
-      ExplicitHeight = 97
+      ExplicitLeft = 880
+      ExplicitHeight = 103
       inherited btnFechar: TSMButton
         Top = 4
         ExplicitTop = 4
@@ -147,25 +151,178 @@ inherited frmConsDuplicata: TfrmConsDuplicata
         'Todos')
       ItemIndex = 0
     end
+    object btnOpcoes: TSMButton
+      Left = 629
+      Top = 35
+      Width = 97
+      Height = 33
+      Caption = 'Op'#231#245'es'
+      DropDownMenu = popOpcoes
+      ParentShowHint = False
+      ShowHint = False
+      Style = bsSplitButton
+      TabOrder = 9
+    end
+    object spdBoletoX1: TspdBoletoX
+      Left = 816
+      Top = 56
+      Width = 26
+      Height = 26
+      ControlData = {
+        54504630185441637469766558436F6D706F6E656E74436F6E74726F6C00044C
+        656674020003546F700200055769647468021A06486569676874021A0000}
+    end
+    object SMButton1: TSMButton
+      Left = 629
+      Top = 66
+      Width = 97
+      Height = 33
+      Caption = 'Consulta Boleto'
+      TabOrder = 11
+    end
   end
   inherited pnlPrincipal: TPanel
-    Top = 99
-    Height = 385
-    ExplicitTop = 99
-    ExplicitWidth = 973
-    ExplicitHeight = 375
+    Top = 105
+    Width = 994
+    Height = 379
+    ExplicitTop = 105
+    ExplicitWidth = 994
+    ExplicitHeight = 379
     inherited pg_Principal: TPageControl
-      Height = 383
-      ExplicitWidth = 971
-      ExplicitHeight = 373
+      Width = 992
+      Height = 377
+      ExplicitWidth = 992
+      ExplicitHeight = 377
       inherited ts_Consulta: TTabSheet
-        ExplicitWidth = 963
-        ExplicitHeight = 345
+        ExplicitWidth = 984
+        ExplicitHeight = 349
         inherited SMDBGrid1: TSMDBGrid
-          Height = 355
+          Width = 984
+          Height = 349
+          OnGetCellParams = SMDBGrid1GetCellParams
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'ID'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'TIPO_ES'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'FILIAL'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ID_NOTA'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'PARCELA'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'NUMDUPLICATA'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'NUMNOTA'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'SERIE'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'DTVENCIMENTO'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'VLR_PARCELA'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'VLR_RESTANTE'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'VLR_PAGO'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'VLR_DESCONTO'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'DTULTPAGAMENTO'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'NOME_CLIENTE'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'CNPJ_CPF'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'DTEMISSAO'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ID_CONTA'
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ID_INTEGRACAO'
+              Visible = True
+            end>
+        end
+      end
+      object ts_Mensagem: TTabSheet
+        Caption = 'Mensagem'
+        ImageIndex = 1
+        object mmResposta: TMemo
+          Left = 0
+          Top = 153
+          Width = 984
+          Height = 196
+          Align = alClient
+          TabOrder = 0
+        end
+        object mmEnvio: TMemo
+          Left = 0
+          Top = 0
+          Width = 984
+          Height = 153
+          Align = alTop
+          TabOrder = 1
         end
       end
     end
+  end
+  inherited dsConsulta: TDataSource
+    Left = 824
+    Top = 216
   end
   inherited qryFilial: TFDQuery
     Left = 936
@@ -174,5 +331,21 @@ inherited frmConsDuplicata: TfrmConsDuplicata
   inherited dsFilial: TDataSource
     Left = 904
     Top = 48
+  end
+  object popOpcoes: TPopupMenu
+    Left = 744
+    Top = 40
+    object btnEnviar: TMenuItem
+      Caption = 'Enviar'
+      OnClick = btnEnviarClick
+    end
+    object btnConsulta: TMenuItem
+      Caption = 'Consultar'
+      OnClick = btnConsultaClick
+    end
+    object btnImpressao: TMenuItem
+      Caption = 'Impressao'
+      OnClick = btnImpressaoClick
+    end
   end
 end
