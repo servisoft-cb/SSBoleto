@@ -16,7 +16,8 @@ uses
   uDMCadConta in 'uDMCadConta.pas' {dmCadConta: TDataModule},
   uConsDuplicata in 'uConsDuplicata.pas' {frmConsDuplicata},
   uDMCadDuplicata in 'uDMCadDuplicata.pas' {DMCadDuplicata: TDataModule},
-  uResumo in 'uResumo.pas' {frmResumo};
+  uResumo in 'uResumo.pas' {frmResumo},
+  Classe.Nome.Remessa in 'Classes\Classe.Nome.Remessa.pas';
 
 {$R *.res}
 

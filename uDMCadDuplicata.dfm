@@ -666,7 +666,7 @@ object DMCadDuplicata: TDMCadDuplicata
         '.ID_CARTEIRA ID_CARTEIRA_CLIENTE,'
       
         '       CLI.COBRAR_TAXA_BANCO TAXA_BANCO, NF.TIPO_REG, NF.NFECHAV' +
-        'EACESSO, NS.COD_AUTENCIDADE_RET,'
+        'EACESSO, NS.COD_AUTENCIDADE_RET,DUP.ID_IMPRESSAO,'
       '       case'
       '         when DCOB.ID_OCORRENCIA > 0 then DCOB.ID_OCORRENCIA'
       '         else :ID_OCORRENCIA'
@@ -1086,6 +1086,12 @@ object DMCadDuplicata: TDMCadDuplicata
       DisplayLabel = 'Id Integra'#231#227'o'
       FieldName = 'ID_INTEGRACAO'
       Origin = 'ID_INTEGRACAO'
+      Size = 30
+    end
+    object qryConsulta_DuplicataID_IMPRESSAO: TStringField
+      DisplayLabel = 'ID Impress'#227'o'
+      FieldName = 'ID_IMPRESSAO'
+      Origin = 'ID_IMPRESSAO'
       Size = 30
     end
   end

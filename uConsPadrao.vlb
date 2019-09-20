@@ -22,13 +22,13 @@ Coordinates=0,0,79,36
 [ts_Consulta]
 Coordinates=10,212,82,36
 
-[SMDBGrid1]
-Coordinates=247,144,83,36
-
 [btnConsultar]
 Coordinates=121,10,88,58
 
 []
 Coordinates=10,10,101,124
 Visible=True
+
+[gridConsulta]
+Coordinates=247,144,83,36
 

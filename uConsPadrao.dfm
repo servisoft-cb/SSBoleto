@@ -1,10 +1,11 @@
 object frmConsPadrao: TfrmConsPadrao
   Left = 0
   Top = 0
+  Width = 798
+  Height = 513
+  AlphaBlend = True
   BorderStyle = bsSingle
   Caption = 'Consulta Padr'#227'o'
-  ClientHeight = 484
-  ClientWidth = 792
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -93,7 +94,7 @@ object frmConsPadrao: TfrmConsPadrao
       TabOrder = 0
       object ts_Consulta: TTabSheet
         Caption = 'Consulta'
-        object SMDBGrid1: TSMDBGrid
+        object gridConsulta: TSMDBGrid
           Left = 0
           Top = 0
           Width = 782
@@ -122,7 +123,7 @@ object frmConsPadrao: TfrmConsPadrao
           FooterColor = clBtnFace
           ExOptions = [eoCheckBoxSelect, eoDisableDelete, eoDisableInsert, eoENTERlikeTAB, eoKeepSelection, eoStandardPopup, eoBLOBEditor, eoTitleWordWrap, eoShowFilterBar, eoFilterAutoApply]
           RegistryKey = 'Software\Scalabium'
-          RegistrySection = 'SMDBGrid'
+          RegistrySection = 'gridConsulta'
           WidthOfIndicator = 23
           DefaultRowHeight = 17
           ScrollBars = ssHorizontal

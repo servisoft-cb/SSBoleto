@@ -17,13 +17,15 @@ uses
 
 type
   TEnumTitulos = (tpNaoEnviados, tpEnviados, tpTodos);
-  TEnumTipoImpressao = (tpNormal = 0, tpCarneDuplo = 1, tpCarneTriplo = 2, tpDuploRetrato = 3,
-                        tpMarcaDagua = 4, tpPersonalizado = 99);
+
+  TEnumTipoImpressao = (tpNormal = 0, tpCarneDuplo = 1, tpCarneTriplo = 2, tpDuploRetrato = 3, tpMarcaDagua = 4, tpPersonalizado = 99);
+
+  TImprimir = (opVisualizar, opImprimir);
 
 type
   TfrmConsDuplicata = class(TfrmConsPadrao)
-    edtNumeroDoc: TEdit;
-    Label2: TLabel;
+    edtConsulta: TEdit;
+    lblDiversos: TLabel;
     DateInicial: TJvDateEdit;
     DateFinal: TJvDateEdit;
     Label3: TLabel;
@@ -39,27 +41,38 @@ type
     ts_Mensagem: TTabSheet;
     mmResposta: TMemo;
     mmEnvio: TMemo;
-    SMButton1: TSMButton;
     popOpcoes: TPopupMenu;
     btnEnviar: TMenuItem;
     btnConsulta: TMenuItem;
     btnImpressao: TMenuItem;
+    dlgSalvarPDF: TSaveDialog;
+    Shape1: TShape;
+    Label2: TLabel;
+    Shape2: TShape;
+    Label8: TLabel;
+    Shape3: TShape;
+    Label9: TLabel;
+    rdgImpressao: TJvRadioGroup;
+    GerarRemessa1: TMenuItem;
     function ConverteErroClasse(aErroClasse: TErroClasse): string;
     procedure FormShow(Sender: TObject);
     procedure btnConsultarClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure comboOcorrenciaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure comboBancoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure SMDBGrid1GetCellParams(Sender: TObject; Field: TField;
-      AFont: TFont; var Background: TColor; Highlight: Boolean);
+    procedure SMDBGrid1GetCellParams(Sender: TObject; Field: TField; AFont: TFont; var Background: TColor; Highlight: Boolean);
     procedure btnEnviarClick(Sender: TObject);
     procedure btnConsultaClick(Sender: TObject);
     procedure btnImpressaoClick(Sender: TObject);
+    procedure SMDBGrid1TitleClick(Column: TColumn);
+    procedure GerarRemessa1Click(Sender: TObject);
   private
     { Private declarations }
+    CampoConsulta: string;
     fDMCadDuplicata: TDMCadDuplicata;
+    function fnc_Montar_IdIntegracao: string;
     procedure prc_Consulta_Duplicata;
-    procedure CarregaConfig(Filial: Integer; Tipo: Integer);
+    function CarregaConfig(Filial: Integer; Tipo: Integer): Boolean;
     procedure DoOnBoletoException(ASender: TObject; const aExceptionMessage: WideString);
     function fnc_Verificar: Boolean;
     function fnc_Montar_Envio: TStringList;
@@ -82,15 +95,16 @@ procedure TfrmConsDuplicata.btnConsultaClick(Sender: TObject);
 var
   _ConsultarList: IspdRetConsultarLista;
   _ConsultarItem: IspdRetConsultarTituloItem;
-  i, j,k ,l : Integer;
+  i, j, k, l: Integer;
 begin
   inherited;
   if fDMCadDuplicata.qryConsulta_DuplicataID_INTEGRACAO.AsString = EmptyStr then
   begin
-    ShowMessage('Título ainda não enviado!');
+    Application.MessageBox('Título ainda não enviado!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
     Exit;
   end;
-  CarregaConfig(comboFilial.KeyValue, 1);
+  if not (CarregaConfig(comboFilial.KeyValue, 1)) then
+    Application.MessageBox('Configurações inválidas!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
   mmResposta.Lines.Clear;
   mmResposta.Refresh;
   mmResposta.Lines.BeginUpdate;
@@ -112,7 +126,7 @@ begin
       for i := 0 to pred(_ConsultarList.Count) do    //o conteúdo de pred é equivalente a (_ConsultarList.Count - 1)
       begin
         _ConsultarItem := _ConsultarList.Item[i];
-        mmResposta.Lines.Add('ITEM: ' + IntToStr(i+1));
+        mmResposta.Lines.Add('ITEM: ' + IntToStr(i + 1));
         mmResposta.Lines.Add('  IdIntegracao: ' + _ConsultarItem.IdIntegracao);
         mmResposta.Lines.Add('  Situacao: ' + _ConsultarItem.Situacao);
         mmResposta.Lines.Add('  Motivo: ' + _ConsultarItem.Motivo);
@@ -231,20 +245,20 @@ begin
         }
 
 
-        for k := 0 to _ConsultarItem.CountTituloMovimentos -1 do
+        for k := 0 to _ConsultarItem.CountTituloMovimentos - 1 do
         begin
-           mmResposta.Lines.Add('  MOVIMENTOS:');
-           mmResposta.Lines.Add('  Movimento Código: '  + _ConsultarItem.TituloMovimentos[k].Codigo);
-           mmResposta.Lines.Add('  Movimento Mensagem: '  + _ConsultarItem.TituloMovimentos[k].Mensagem);
-           mmResposta.Lines.Add('  Movimento Data: '  + _ConsultarItem.TituloMovimentos[k].Data);
-           mmResposta.Lines.Add('  Movimento Taxa: '  + FloatToStr(_ConsultarItem.TituloMovimentos[k].Taxa));
-           for l := 0 to _ConsultarItem.TituloMovimentos[k].CountOcorrencias -1 do
-            begin
-              mmResposta.Lines.Add('  OCORRÊNCIAS:');
-              mmResposta.Lines.Add('     Ocorrências Código: '  + _ConsultarItem.TituloMovimentos[k].Ocorrencias[l].Codigo);
-              mmResposta.Lines.Add('     Ocorrências Mensagem: '  + _ConsultarItem.TituloMovimentos[k].Ocorrencias[l].Mensagem);
-            end;
-        mmResposta.Lines.Add('');
+          mmResposta.Lines.Add('  MOVIMENTOS:');
+          mmResposta.Lines.Add('  Movimento Código: ' + _ConsultarItem.TituloMovimentos[k].Codigo);
+          mmResposta.Lines.Add('  Movimento Mensagem: ' + _ConsultarItem.TituloMovimentos[k].Mensagem);
+          mmResposta.Lines.Add('  Movimento Data: ' + _ConsultarItem.TituloMovimentos[k].Data);
+          mmResposta.Lines.Add('  Movimento Taxa: ' + FloatToStr(_ConsultarItem.TituloMovimentos[k].Taxa));
+          for l := 0 to _ConsultarItem.TituloMovimentos[k].CountOcorrencias - 1 do
+          begin
+            mmResposta.Lines.Add('  OCORRÊNCIAS:');
+            mmResposta.Lines.Add('     Ocorrências Código: ' + _ConsultarItem.TituloMovimentos[k].Ocorrencias[l].Codigo);
+            mmResposta.Lines.Add('     Ocorrências Mensagem: ' + _ConsultarItem.TituloMovimentos[k].Ocorrencias[l].Mensagem);
+          end;
+          mmResposta.Lines.Add('');
         end;
 
       end;
@@ -255,6 +269,7 @@ begin
 
   finally
     mmResposta.Lines.EndUpdate;
+    pg_Principal.ActivePage := ts_Mensagem;
   end;
 
 end;
@@ -274,6 +289,8 @@ begin
     comboOcorrencia.SetFocus;
     Exit;
   end;
+  mmResposta.Lines.Clear;
+  mmEnvio.Lines.Clear;
   prc_Consulta_Duplicata;
 end;
 
@@ -282,12 +299,13 @@ var
   _BoletoList: IspdRetIncluirLista;
   i: Integer;
   listaIdsIntegracao: string;
-  vLista : TStringList;
+  vLista: TStringList;
 begin
   inherited;
   if not fnc_Verificar then
     Exit;
-  CarregaConfig(comboFilial.KeyValue, 1);
+  if not (CarregaConfig(comboFilial.KeyValue, 1)) then
+    Application.MessageBox('Configurações inválidas!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
 
   vLista := TStringList.Create();
   mmResposta.Lines.Clear;
@@ -296,7 +314,7 @@ begin
   fDMCadDuplicata.qryConsulta_Duplicata.First;
   while not fDMCadDuplicata.qryConsulta_Duplicata.Eof do
   begin
-    if (SMDBGrid1.SelectedRows.CurrentRowSelected) and (fDMCadDuplicata.qryConsulta_DuplicataDTVENCIMENTO.AsDateTime > Date) then
+    if (gridConsulta.SelectedRows.CurrentRowSelected) then
     begin
       vLista.Clear;
       vLista := fnc_Montar_Envio;
@@ -331,7 +349,7 @@ begin
       mmResposta.Lines.Add('  ErroClasse: ' + ConverteErroClasse(_BoletoList[i].ErroClasse));
       mmResposta.Lines.Add('');
       fDMCadDuplicata.prc_Abrir_Duplicata(StrToInt(_BoletoList[i].NumeroDocumento));
-      fDMCadDuplicata.prc_Gravar_Duplicata(StrToInt(_BoletoList[i].NumeroDocumento),_BoletoList[i].IdIntegracao);
+      fDMCadDuplicata.prc_Gravar_Duplicata(StrToInt(_BoletoList[i].NumeroDocumento), _BoletoList[i].IdIntegracao);
 
       if i = 0 then                                       //este if identifica se foi feito o envio de 1 boleto por tx2 ou de um lote de boletos, para alimentar os campos que recebem os idIntegracao
         listaIdsIntegracao := _BoletoList[i].IdIntegracao
@@ -353,41 +371,128 @@ end;
 
 procedure TfrmConsDuplicata.btnImpressaoClick(Sender: TObject);
 var
-  TipoImpressao : TEnumTipoImpressao;
+  TipoImpressao: TEnumTipoImpressao;
   _ImprimirLoteList: IspdRetImprimirLote;
-  ProtocoloImpressao : String;
+  _Impressao: IspdRetConsultarLoteImpressao;
+  _SalvarPDFLote: IspdRetSalvarLoteImpressaoPDF;
+  ProtocoloImpressao: string;
+  ListaID: string;
+  numeroConsultas: Integer;
 begin
   inherited;
   if fDMCadDuplicata.qryConsulta_DuplicataID_INTEGRACAO.AsString = EmptyStr then
   begin
-    ShowMessage('Título ainda não enviado!');
+    Application.MessageBox('Título ainda não enviado!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
     Exit;
   end;
 
+  pg_Principal.ActivePage := ts_Mensagem;
   TipoImpressao := tpNormal;
-  CarregaConfig(comboFilial.KeyValue, 1);
+  if not (CarregaConfig(comboFilial.KeyValue, 1)) then
+    Application.MessageBox('Configurações inválidas!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
   mmResposta.Lines.Clear;
   mmResposta.Refresh;
   mmResposta.Lines.BeginUpdate;
-  _ImprimirLoteList := FBoletoX.ImprimirLote(fDMCadDuplicata.qryConsulta_DuplicataID_INTEGRACAO.AsString,  IntToStr(integer(TipoImpressao)));
+
+  ListaID := fnc_Montar_IdIntegracao;
+
+  _ImprimirLoteList := FBoletoX.ImprimirLote(ListaID, IntToStr(integer(TipoImpressao)));
+  Sleep(2000);
   if _ImprimirLoteList.Protocolo <> EmptyStr then
     ProtocoloImpressao := _ImprimirLoteList.Protocolo;
-  Sleep(1000);
+  mmResposta.Lines.Clear;
+  mmResposta.Lines.Add('.:: IMPRESSÃO BOLETO::.');
+  mmResposta.Lines.Add('Mensagem: ' + _ImprimirLoteList.Mensagem);
+  mmResposta.Lines.Add('Status: ' + _ImprimirLoteList.Status);
+  mmResposta.Lines.Add('Protocolo: ' + _ImprimirLoteList.Protocolo);
+  if AnsiSameText(_ImprimirLoteList.Status, 'ERRO') then
+  begin
+    mmResposta.Lines.Add('ErroClasse: ' + ConverteErroClasse(_ImprimirLoteList.ErroClasse));
+  end;
+  mmResposta.Lines.Add('');
+  mmResposta.Lines.EndUpdate;
+  mmResposta.Lines.Add('.:: CONSULTAR PROTOCOLO IMPRESSÃO ::');
+  mmResposta.Lines.EndUpdate;
 
+  case TImprimir(rdgImpressao.ItemIndex) of
+    opVisualizar:
+      begin
+        dlgSalvarPDF.FileName := _ImprimirLoteList.Protocolo + dlgSalvarPDF.Filter;
+        if dlgSalvarPDF.Execute then
+        begin
+          try
+            repeat           // Repete até que a nossa API tenha terminado de tratar o pedido de impressão
+              begin
+                _SalvarPDFLote := FBoletoX.SalvarLoteImpressaoPDF(_ImprimirLoteList.Protocolo, dlgSalvarPDF.FileName);
 
+                mmResposta.Lines.Add('.:: CONSULTAR PROTOCOLO LOTE IMPRESSÃO - Tentativa ' + IntToStr(numeroConsultas) + ' ::.');
+                mmResposta.Lines.Add('Situacao: ' + _SalvarPDFLote.Situacao);    //'PROCESSANDO': impressão em processamento  // 'PROCESSADA': impressão processada com sucesso  //  'FALHA': erro ao gerar a impressão. (O erro estará preenchido na propriedade Mensagem)  //  'CANCELADA': impressão abortada
+                mmResposta.Lines.Add('Mensagem: ' + _SalvarPDFLote.Mensagem);
+                mmResposta.Lines.Add('Status: ' + _SalvarPDFLote.Status);
 
+                if _SalvarPDFLote.ErroConexao <> '' then
+                  mmResposta.Lines.Add('Erro Conexão: ' + _SalvarPDFLote.ErroConexao);
+
+                if AnsiSameText(_SalvarPDFLote.Status, 'ERRO') then
+                  mmResposta.Lines.Add('ErroClasse: ' + ConverteErroClasse(_SalvarPDFLote.ErroClasse));
+
+                if _SalvarPDFLote.Situacao = 'PROCESSANDO' then
+                  Sleep(2000);    //'Se o processamento da API ainda não terminou, guarda 2 segundos.
+
+                numeroConsultas := numeroConsultas + 1;
+                mmResposta.Lines.Add('');
+              end;
+
+            until ((_SalvarPDFLote.Situacao = 'PROCESSADA') and (numeroConsultas < 40)) or (numeroConsultas > 40);
+
+          finally
+            mmResposta.Lines.EndUpdate;
+          end;
+        end;
+      end;
+
+    opImprimir:
+      begin
+        _Impressao := FBoletoX.ConsultarLoteImpressao(ProtocoloImpressao, GetDefaultPrinterName);
+        while _Impressao.Situacao = 'PROCESSANDO' do
+        begin
+          mmResposta.Lines.Add('.:: PROCESSANDO ::');
+          mmResposta.Lines.EndUpdate;
+          _Impressao := FBoletoX.ConsultarLoteImpressao(ProtocoloImpressao, GetDefaultPrinterName);
+        end;
+        mmResposta.Lines.Add('.:: CONSULTAR PROTOCOLO IMPRESSÃO ::');
+        mmResposta.Lines.Add('Situacao: ' + _Impressao.Situacao);    //'PROCESSANDO': impressão em processamento  // 'PROCESSADA': impressão processada com sucesso  //  'FALHA': erro ao gerar a impressão. (O erro estará preenchido na propriedade Mensagem)  //  'CANCELADA': impressão abortada
+        mmResposta.Lines.Add('Mensagem: ' + _Impressao.Mensagem);
+        mmResposta.Lines.Add('Status: ' + _Impressao.Status);
+        if _Impressao.ErroConexao <> '' then
+          mmResposta.Lines.Add('Erro Conexão: ' + _Impressao.ErroConexao);
+        if AnsiSameText(_Impressao.Status, 'ERRO') then
+          mmResposta.Lines.Add('ErroClasse: ' + ConverteErroClasse(_Impressao.ErroClasse));
+        if _Impressao.Status = 'SUCESSO' then
+        begin
+
+        end;
+        mmResposta.Lines.Add('');
+        mmResposta.Lines.EndUpdate;
+      end;
+  end;
 end;
 
-procedure TfrmConsDuplicata.CarregaConfig(Filial, Tipo: Integer);
+function TfrmConsDuplicata.CarregaConfig(Filial, Tipo: Integer): Boolean;
 var
   vConfigTecnoSpeed: TConfigTecnoSpeed;
 begin
+  Result := True;
   vConfigTecnoSpeed := TConfigTecnoSpeed.Create(Filial, Tipo);
-  FBoletoX.Config.URL := vConfigTecnoSpeed.URL;
-  FBoletoX.ConfigurarSoftwareHouse(vConfigTecnoSpeed.CNPJSH, vConfigTecnoSpeed.Token);
-  FBoletoX.Config.CedenteCpfCnpj := vConfigTecnoSpeed.CNPJCedente;
-  FBoletoX.OnException := DoOnBoletoException;
-  FBoletoX.Config.SalvarLogs := true;  //Salva os logs na pasta em que se encontra o exe do projeto
+  try
+    FBoletoX.Config.URL := vConfigTecnoSpeed.URL;
+    FBoletoX.ConfigurarSoftwareHouse(vConfigTecnoSpeed.CNPJSH, vConfigTecnoSpeed.Token);
+    FBoletoX.Config.CedenteCpfCnpj := vConfigTecnoSpeed.CNPJCedente;
+    FBoletoX.OnException := DoOnBoletoException;
+    FBoletoX.Config.SalvarLogs := true;  //Salva os logs na pasta em que se encontra o exe do projeto
+  except
+    Result := False;
+  end;
 end;
 
 procedure TfrmConsDuplicata.comboBancoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -498,7 +603,7 @@ begin
     Result.Add('TituloNumeroDocumento=' + IntToStr(qryConsulta_DuplicataID.AsInteger));
     Result.Add('TituloDataVencimento=' + DateToStr(qryConsulta_DuplicataDTVENCIMENTO.AsDateTime));
     Result.Add('TituloDataEmissao=' + DateToStr(qryConsulta_DuplicataDTEMISSAO.AsDateTime));
-    Result.Add('TituloValor=' + FormatFloat('0.00',qryConsulta_DuplicataVLR_PARCELA.AsFloat));
+    Result.Add('TituloValor=' + FormatFloat('0.00', qryConsulta_DuplicataVLR_PARCELA.AsFloat));
     Result.Add('TituloMensagem01=' + SQLLocate('CONTAS', 'ID', 'MENSAGEM_FIXA', qryConsulta_DuplicataID_CONTA.AsString));
     Result.Add('TituloMensagem02=' + '');
     Result.Add('TituloMensagem03=' + '');
@@ -558,6 +663,73 @@ begin
   end;
 end;
 
+procedure TfrmConsDuplicata.GerarRemessa1Click(Sender: TObject);
+var
+  _RemessaList: IspdRetGerarRemessaLista;
+  _RemessaItem: IspdRetGerarRemessaItem;
+  i, j: Integer;
+  conteudoRemessa: TStringList;
+  ListaID : String;
+begin
+  inherited;
+  if fDMCadDuplicata.qryConsulta_DuplicataID_INTEGRACAO.AsString = EmptyStr then
+  begin
+    Application.MessageBox('Título ainda não enviado!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
+    Exit;
+  end;
+
+  pg_Principal.ActivePage := ts_Mensagem;
+  if not (CarregaConfig(comboFilial.KeyValue, 1)) then
+    Application.MessageBox('Configurações inválidas!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
+  mmResposta.Lines.Clear;
+  mmResposta.Refresh;
+  mmResposta.Lines.BeginUpdate;
+
+  ListaID := fnc_Montar_IdIntegracao;
+
+  try
+    _RemessaList := FBoletoX.GerarRemessa(ListaID);
+
+    mmResposta.Lines.Clear;
+    mmResposta.Lines.Add('.:: GERAR REMESSA ::.');
+    mmResposta.Lines.Add('Mensagem: ' + _RemessaList.Mensagem);
+    mmResposta.Lines.Add('Status: ' + _RemessaList.Status);
+    mmResposta.Lines.Add('');
+
+    for i := 0 to _RemessaList.Count - 1 do
+    begin
+      _RemessaItem := _RemessaList.Item[i];
+      mmResposta.Lines.Add('ITEM: ' + IntToStr(i+1));
+      mmResposta.Lines.Add('  Mensagem: ' + _RemessaItem.Mensagem);
+      mmResposta.Lines.Add('  Remessa: ' + _RemessaItem.Remessa);
+      mmResposta.Lines.Add('  Banco: ' + _RemessaItem.Banco);
+      mmResposta.Lines.Add('  Conta: ' + _RemessaItem.Conta);
+      mmResposta.Lines.Add('  Número Atual da Remessa: ' + IntToStr(_RemessaItem.NumeroAtualRemessa));
+      mmResposta.Lines.Add('  Transmissão automática?: ' + BoolToStr(_RemessaItem.TransmissaoAutomatica));
+      mmResposta.Lines.Add('  Erro: ' + _RemessaItem.Erro);
+
+      conteudoRemessa := TStringList.Create;                           // ---
+      conteudoRemessa.Text := UTF8Encode(_RemessaItem.Remessa);               //    |--> Salva o conteúdo da remessa em um arquivo texto
+      conteudoRemessa.SaveToFile('C:\Temp\conteudoRemessaUTF8.txt');   // ---
+
+      for j := 0 to _RemessaItem.Titulos.Count-1 do
+      begin
+        mmResposta.Lines.Add('  IdIntegracao ' + IntToStr(j+1) + ': ' + _RemessaItem.Titulos.Item[j]);
+      end;
+
+      mmResposta.Lines.Add('');
+
+      conteudoRemessa.Free;
+
+    end;
+
+  finally
+    mmResposta.Lines.EndUpdate;
+
+  end;
+
+end;
+
 procedure TfrmConsDuplicata.prc_Consulta_Duplicata;
 begin
   fDMCadDuplicata.qryConsulta_Duplicata.SQL.Text := fDMCadDuplicata.ctCommandDup;
@@ -565,8 +737,8 @@ begin
   fDMCadDuplicata.qryConsulta_Duplicata.SQL.Add(' WHERE DUP.TIPO_ES = ' + QuotedStr('E') + ' AND DUP.VLR_RESTANTE > 0');
   if comboFilial.KeyValue > 0 then
     fDMCadDuplicata.qryConsulta_Duplicata.SQL.Add(' AND DUP.FILIAL = ' + IntToStr(comboFilial.KeyValue));
-  if edtNumeroDoc.Text <> '' then
-    fDMCadDuplicata.qryConsulta_Duplicata.SQL.Add(' AND (DUP.NUMDUPLICATA = ' + QuotedStr(edtNumeroDoc.Text) + ') ');
+  if edtConsulta.Text <> '' then
+    fDMCadDuplicata.qryConsulta_Duplicata.SQL.Add(' AND (DUP. ' + CampoConsulta + ' = ' + QuotedStr(edtConsulta.Text) + ') ');
   if DateInicial.Date > 10 then
     fDMCadDuplicata.qryConsulta_Duplicata.SQL.Add(' AND DUP.DTEMISSAO >= ' + QuotedStr(FormatDateTime('MM/DD/YYYY', DateInicial.Date)));
   if DateFinal.Date > 10 then
@@ -588,14 +760,60 @@ begin
 
 end;
 
-procedure TfrmConsDuplicata.SMDBGrid1GetCellParams(Sender: TObject;
-  Field: TField; AFont: TFont; var Background: TColor; Highlight: Boolean);
+function TfrmConsDuplicata.fnc_Montar_IdIntegracao: string;
+var
+  Lista: TStringList;
+  I: Integer;
+begin
+  Lista := TStringList.Create;
+  try
+    fDMCadDuplicata.qryConsulta_Duplicata.First;
+    fDMCadDuplicata.qryConsulta_Duplicata.DisableControls;
+    while not fDMCadDuplicata.qryConsulta_Duplicata.eof do
+    begin
+      if gridConsulta.SelectedRows.CurrentRowSelected then
+      begin
+        Lista.Add(fDMCadDuplicata.qryConsulta_DuplicataID_INTEGRACAO.AsString + ',');
+      end;
+      fDMCadDuplicata.qryConsulta_Duplicata.Next;
+    end;
+    Lista[Lista.Count - 1] := StringReplace(Lista[Lista.Count - 1], ',', '', [rfReplaceAll]);
+    for I := 0 to Lista.Count - 1 do
+      Result := Result + Lista[I];
+  finally
+    FreeAndNil(Lista);
+    fDMCadDuplicata.qryConsulta_Duplicata.EnableControls;
+  end;
+end;
+
+procedure TfrmConsDuplicata.SMDBGrid1GetCellParams(Sender: TObject; Field: TField; AFont: TFont; var Background: TColor; Highlight: Boolean);
 begin
   inherited;
   if fDMCadDuplicata.qryConsulta_Duplicata.IsEmpty then
     Exit;
   if (fDMCadDuplicata.qryConsulta_DuplicataID_INTEGRACAO.AsString <> EmptyStr) then
+  begin
     Background := clGreen;
+    AFont.Color := clWhite;
+  end;
+  if (fDMCadDuplicata.qryConsulta_DuplicataID_IMPRESSAO.AsString <> EmptyStr) then
+  begin
+    Background := clOlive;
+    AFont.Color := clWhite;
+  end;
+  if (fDMCadDuplicata.qryConsulta_DuplicataDTVENCIMENTO.AsDateTime < Date) then
+  begin
+    Background := clRed;
+    AFont.Color := clWhite;
+  end;
+
+end;
+
+procedure TfrmConsDuplicata.SMDBGrid1TitleClick(Column: TColumn);
+begin
+  inherited;
+  lblDiversos.Caption := Column.Field.DisplayLabel + ':';
+  CampoConsulta := Column.FieldName;
 end;
 
 end.

@@ -3,9 +3,10 @@ unit uUtilPadrao;
 interface
 
 uses
- Classes,   FireDAC.Comp.Client, DmdConnection;
+ Classes,   FireDAC.Comp.Client, DmdConnection, Vcl.Printers;
 
   function  SQLLocate(Tabela, CampoProcura, CampoRetorno, ValorFind: string): string ;
+  function GetDefaultPrinterName: string;
 
 var
  vCaminhoBanco: String;
@@ -13,7 +14,7 @@ var
 implementation
 
 uses
-  System.SysUtils;
+  System.SysUtils, Winapi.CommDlg;
 
 
 function SQLLocate(Tabela, CampoProcura, CampoRetorno, ValorFind: string): string ;
@@ -37,6 +38,18 @@ begin
   end
   else
     ValorFind := '' ;
+end;
+
+function GetDefaultPrinterName: string;
+begin
+  if (Printer.PrinterIndex >= 0) then
+  begin
+    Result := Printer.Printers[Printer.PrinterIndex];
+  end
+  else
+  begin
+    Result := 'Nenhuma impressora padrão foi detectada.';
+  end;
 end;
 
 end.

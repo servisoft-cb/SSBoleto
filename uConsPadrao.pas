@@ -18,7 +18,7 @@ type
     btnConsultar: TSMButton;
     pg_Principal: TPageControl;
     ts_Consulta: TTabSheet;
-    SMDBGrid1: TSMDBGrid;
+    gridConsulta: TSMDBGrid;
     dsConsulta: TDataSource;
     Label1: TLabel;
     pnlSair: TPanel;

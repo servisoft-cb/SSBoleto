@@ -169,6 +169,7 @@ type
     qryConsulta_DuplicataID_CONTA: TIntegerField;
     qryConsulta_DuplicataID_INTEGRACAO: TStringField;
     qryConsulta: TFDQuery;
+    qryConsulta_DuplicataID_IMPRESSAO: TStringField;
     procedure qryContasBeforeScroll(DataSet: TDataSet);
     procedure DataModuleCreate(Sender: TObject);
   private
