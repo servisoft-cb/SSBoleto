@@ -1,14 +1,14 @@
 inherited frmConsDuplicata: TfrmConsDuplicata
   Caption = 'Consulta Duplicata'
-  ClientWidth = 967
+  ClientWidth = 1072
   OnShow = FormShow
-  ExplicitWidth = 973
+  ExplicitWidth = 1078
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlTop: TPanel
-    Width = 967
+    Width = 1072
     Height = 105
-    ExplicitWidth = 967
+    ExplicitWidth = 1072
     ExplicitHeight = 105
     inherited Label1: TLabel
       Left = 244
@@ -60,55 +60,55 @@ inherited frmConsDuplicata: TfrmConsDuplicata
       Caption = 'T'#237'tulos:'
     end
     object Shape1: TShape [7]
-      Left = 756
+      Left = 734
       Top = 3
       Width = 20
       Height = 18
-      Brush.Color = clGreen
-      Pen.Color = clGreen
+      Brush.Color = clYellow
+      Pen.Color = clYellow
     end
     object Label2: TLabel [8]
-      Left = 782
+      Left = 760
       Top = 8
       Width = 35
       Height = 13
       Caption = 'Gerado'
     end
     object Shape2: TShape [9]
-      Left = 756
-      Top = 21
+      Left = 876
+      Top = 2
       Width = 20
       Height = 18
       Brush.Color = clOlive
       Pen.Color = clOlive
     end
     object Label8: TLabel [10]
-      Left = 782
-      Top = 26
+      Left = 902
+      Top = 7
       Width = 44
       Height = 13
       Caption = 'Impresso'
     end
     object Shape3: TShape [11]
-      Left = 756
-      Top = 39
+      Left = 802
+      Top = 2
       Width = 20
       Height = 18
       Brush.Color = clRed
       Pen.Color = clRed
     end
     object Label9: TLabel [12]
-      Left = 782
-      Top = 44
+      Left = 828
+      Top = 7
       Width = 37
       Height = 13
       Caption = 'Vencido'
     end
     inherited pnlSair: TPanel [13]
-      Left = 853
+      Left = 958
       Height = 103
       TabOrder = 0
-      ExplicitLeft = 853
+      ExplicitLeft = 958
       ExplicitHeight = 103
       inherited btnFechar: TSMButton
         Top = 4
@@ -219,10 +219,11 @@ inherited frmConsDuplicata: TfrmConsDuplicata
         656674020003546F700200055769647468021A06486569676874021A0000}
     end
     object rdgImpressao: TJvRadioGroup
-      Left = 424
-      Top = 65
+      Left = 732
+      Top = 63
       Width = 161
       Height = 30
+      Caption = 'Tipo Impress'#227'o'
       Columns = 2
       ItemIndex = 0
       Items.Strings = (
@@ -230,27 +231,40 @@ inherited frmConsDuplicata: TfrmConsDuplicata
         'Imprimir')
       TabOrder = 11
     end
+    object rdgAnexar: TJvRadioGroup
+      Left = 732
+      Top = 27
+      Width = 161
+      Height = 30
+      Caption = 'Email Boleto'
+      Columns = 2
+      ItemIndex = 0
+      Items.Strings = (
+        'Anexar'
+        'Enviar Link')
+      TabOrder = 12
+    end
   end
   inherited pnlPrincipal: TPanel
     Top = 105
-    Width = 967
+    Width = 1072
     Height = 379
     ExplicitTop = 105
-    ExplicitWidth = 967
+    ExplicitWidth = 1072
     ExplicitHeight = 379
     inherited pg_Principal: TPageControl
-      Width = 965
+      Width = 1070
       Height = 377
-      ExplicitWidth = 965
+      ExplicitWidth = 1070
       ExplicitHeight = 377
       inherited ts_Consulta: TTabSheet
-        ExplicitWidth = 957
+        ExplicitWidth = 1062
         ExplicitHeight = 349
         inherited gridConsulta: TSMDBGrid
-          Width = 957
+          Width = 1062
           Height = 349
           OnTitleClick = SMDBGrid1TitleClick
-          OnGetCellParams = SMDBGrid1GetCellParams
+          OnGetCellParams = gridConsultaGetCellParams
           Columns = <
             item
               Expanded = False
@@ -361,7 +375,7 @@ inherited frmConsDuplicata: TfrmConsDuplicata
         object mmResposta: TMemo
           Left = 0
           Top = 153
-          Width = 957
+          Width = 1062
           Height = 196
           Align = alClient
           ScrollBars = ssVertical
@@ -370,7 +384,7 @@ inherited frmConsDuplicata: TfrmConsDuplicata
         object mmEnvio: TMemo
           Left = 0
           Top = 0
-          Width = 957
+          Width = 1062
           Height = 153
           Align = alTop
           ScrollBars = ssVertical
@@ -393,7 +407,7 @@ inherited frmConsDuplicata: TfrmConsDuplicata
   end
   object popOpcoes: TPopupMenu
     Left = 632
-    Top = 72
+    Top = 40
     object btnEnviar: TMenuItem
       Caption = 'Enviar'
       OnClick = btnEnviarClick
@@ -409,6 +423,10 @@ inherited frmConsDuplicata: TfrmConsDuplicata
     object GerarRemessa1: TMenuItem
       Caption = 'Gerar Remessa'
       OnClick = GerarRemessa1Click
+    end
+    object EnviarEmail1: TMenuItem
+      Caption = 'Enviar Email'
+      OnClick = EnviarEmail1Click
     end
   end
   object dlgSalvarPDF: TSaveDialog

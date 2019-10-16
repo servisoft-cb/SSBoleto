@@ -50,15 +50,15 @@ begin
           'from FILIAL F ' +
           'left join FILIAL_SOFTWAREHOUSE FS ON F.ID = FS.ID ' +
           'where FS.ID = ' + IntToStr(ID) +' and FS.TIPO = ' + IntToStr(Tipo);
-   _vQry := _Dados.RetornaDataSet(vSql);
-  Token := _vQry.FieldByName('Token').Value;
-  CNPJSH := _vQry.FieldByName('CNPJ').Value;
-  CNPJCedente := _vQry.FieldByName('CNPJ_CPF').Value;
-  TipoAmbiente := _vQry.FieldByName('AMBIENTE_ENVIO').Value;
+   _vQry       := _Dados.RetornaDataSet(vSql);
+  Token        := _vQry.FieldByName('Token').AsString;
+  CNPJSH       := _vQry.FieldByName('CNPJ').AsString;
+  CNPJCedente  := _vQry.FieldByName('CNPJ_CPF').AsString;
+  TipoAmbiente := _vQry.FieldByName('AMBIENTE_ENVIO').AsString;
   if TipoAmbiente = 'P' then
-    URL := _vQry.FieldByName('URL_PRODUCAO').Value
-  else
-    URL := _vQry.FieldByName('URL_HOMOLOGACAO').Value;
+    URL := _vQry.FieldByName('URL_PRODUCAO').AsString
+  else       ////
+    URL := _vQry.FieldByName('URL_HOMOLOGACAO').AsString;
 end;
 
 destructor TConfigTecnoSpeed.Destroy;

@@ -9,7 +9,8 @@ uses
   FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
   FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.Grids, Vcl.DBGrids, SMDBGrid,
   Vcl.ComCtrls, Vcl.DBCtrls, Vcl.StdCtrls, SMultiBtn, Vcl.ExtCtrls, uConfigTecnoSpeed,
-  Vcl.OleCtrls, BoletoX_TLB, uDMCadConta, JvExControls, JvDBLookup;
+  Vcl.OleCtrls, BoletoX_TLB, uDMCadConta, JvExControls, JvDBLookup, Classe.Monta.Conta.TecnoSpeed,
+  Classe.Monta.Convenio.TecnoSpeed;
 
 type
   TEnumEnvio = (tpConta, tpConvenio);
@@ -108,38 +109,41 @@ begin
 end;
 
 function TfrmConsConta.fnc_Montar_Envio: TStringList;
+var
+  MontaContaTecnoSpeed : TMontaContaTecnoSpeed;
+  MontaConvenioTecnoSpeed : TMontaConvenioTecnoSpeed;
 begin
   Result := TStringList.Create;
   case TEnumEnvio(rdgTipoEnvio.ItemIndex) of
     tpConta : begin
-      Result.Add('INCLUIRCEDENTECONTA');
-      Result.Add('ContaCodigoBanco='+ fDMCadConta.qryConsultaCODIGO.AsString);
-      Result.Add('ContaAgencia=' + fDMCadConta.qryConsultaAGENCIA.AsString);
-      Result.Add('ContaAgenciaDV=' + fDMCadConta.qryConsultaDIG_AGENCIA.AsString);
-      Result.Add('ContaNumero=' + fDMCadConta.qryConsultaNUMCONTA.AsString);
-      Result.Add('ContaNumeroDV=' + fDMCadConta.qryConsultaDIG_CONTA.AsString);
-      Result.Add('ContaTipo=' + 'CORRENTE');
-      Result.Add('ContaCodigoBeneficiario=' + fDMCadConta.qryConsultaCOD_CEDENTE.AsString);
-      Result.Add('SALVARCEDENTECONTA');
+      MontaContaTecnoSpeed := TMontaContaTecnoSpeed.new;
+      with MontaContaTecnoSpeed do
+      begin
+       CodigoBanco    := fDMCadConta.qryConsultaCODIGO.AsString;
+       ContaAgencia   := fDMCadConta.qryConsultaAGENCIA.AsString;
+       ContaAgenciaDV := fDMCadConta.qryConsultaDIG_AGENCIA.AsString;
+       ContaNumero    := fDMCadConta.qryConsultaNUMCONTA.AsString;
+       ContaNumeroDV  := fDMCadConta.qryConsultaDIG_CONTA.AsString;
+       ContaCodigoBeneficiario := fDMCadConta.qryConsultaCOD_CEDENTE.AsString;
+       Result := MontaEnvioContaSicredi;
+      end;
     end;
     tpConvenio : begin
-      Result.Add('INCLUIRCONTACONVENIO');
-      Result.Add('ConvenioNumero='+ fDMCadConta.qryConsultaCOD_CEDENTE.AsString);
-      Result.Add('ConvenioDescricao=' + fDMCadConta.qryConsultaNOME.AsString);
-      Result.Add('ConvenioCarteira=' + fDMCadConta.qryConsultaCARTEIRA.AsString);
-      Result.Add('ConvenioEspecie=' + 'R$');
-      if fDMCadConta.qryConsultaACBR_LAYOUTREMESSA.AsString = 'C240' then
-        Result.Add('ConvenioPadraoCNAB=' + '240' )
-      else
-        Result.Add('ConvenioPadraoCNAB=' + '400');
-      Result.Add('ConvenioUtilizaVan=' + '0');
-      Result.Add('Conta=' + fDMCadConta.qryConsultaID_CONTA_TECNOSPEED.AsString);
-//      Result.Add('ConvenioNumeroRemessa=' );
-//      if fDMCadConta.qryConsultaREINICIAR_NUM_REMESSA_DIA.AsString = 'S' then
-//        Result.Add('ConvenioReiniciarDiariamente=' + 'true')
-//      else
-//        Result.Add('ConvenioReiniciarDiariamente=' + 'false');
-      Result.Add('SALVARCONTACONVENIO');
+      MontaConvenioTecnoSpeed := TMontaConvenioTecnoSpeed.New;
+      with MontaConvenioTecnoSpeed do
+      begin
+        ConvenioNumero := fDMCadConta.qryConsultaCOD_CEDENTE.AsString;
+        ConvenioDescricao := fDMCadConta.qryConsultaNOME.AsString;
+        ConvenioNumero := fDMCadConta.qryConsultaCOD_CEDENTE.AsString;
+        ConvenioDescricao := fDMCadConta.qryConsultaNOME.AsString;
+        ConvenioCarteira := fDMCadConta.qryConsultaCARTEIRA.AsString;
+        ConvenioPadraoCNAB := '400';
+        if fDMCadConta.qryConsultaACBR_LAYOUTREMESSA.AsString = 'C240' then
+          ConvenioPadraoCNAB := '240';
+        ConvenioUtilizaVan := '0';
+        Conta := fDMCadConta.qryConsultaID_CONTA_TECNOSPEED.AsString;
+        Result := MontaEnvioConvenioSicredi;
+      end;
     end;
   end;
 end;
@@ -156,7 +160,7 @@ procedure TfrmConsConta.prc_Enviar_Conta;
 var
   _Conta: IspdRetCadastrarConta;
 begin
-  CarregaConfig(fDMCadConta.qryConsultaID.AsInteger,1);
+  CarregaConfig(fDMCadConta.qryConsultaFILIAL.AsInteger,1);
 
   mmEnvio.Lines.Clear;
   mmEnvio.Lines := fnc_Montar_Envio;
@@ -203,7 +207,7 @@ procedure TfrmConsConta.prc_Enviar_Convenio;
 var
  _Convenio: IspdRetCadastrarConvenio;
 begin
-  CarregaConfig(fDMCadConta.qryConsultaID.AsInteger,1);
+  CarregaConfig(fDMCadConta.qryConsultaFILIAL.AsInteger,1);
 
   mmEnvio.Lines.Clear;
   mmEnvio.Lines := fnc_Montar_Envio;

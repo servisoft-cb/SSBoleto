@@ -13,7 +13,8 @@ uses
   JvToolEdit, JvExComCtrls, JvDateTimePicker, JvMaskEdit, JvCheckedMaskEdit,
   JvDatePickerEdit, JvExExtCtrls, JvRadioGroup, JvExControls, JvDBLookup,
   uDMCadDuplicata, JvExStdCtrls, JvCombobox, Vcl.OleCtrls, BoletoX_TLB,
-  uConfigTecnoSpeed, Vcl.Menus;
+  uConfigTecnoSpeed, Vcl.Menus, Classe.Nome.Remessa, Classe.Gravar.Historico.Duplicata,
+  Classe.Enviar.Email.TecnoSpeed, Classe.Email.Empresa, uConsDetalheTecno;
 
 type
   TEnumTitulos = (tpNaoEnviados, tpEnviados, tpTodos);
@@ -21,6 +22,8 @@ type
   TEnumTipoImpressao = (tpNormal = 0, tpCarneDuplo = 1, tpCarneTriplo = 2, tpDuploRetrato = 3, tpMarcaDagua = 4, tpPersonalizado = 99);
 
   TImprimir = (opVisualizar, opImprimir);
+
+  TEnumTipoEnvioAnexo = (tpLink, tpAnexo);
 
 type
   TfrmConsDuplicata = class(TfrmConsPadrao)
@@ -54,30 +57,45 @@ type
     Label9: TLabel;
     rdgImpressao: TJvRadioGroup;
     GerarRemessa1: TMenuItem;
+    rdgAnexar: TJvRadioGroup;
+    EnviarEmail1: TMenuItem;
     function ConverteErroClasse(aErroClasse: TErroClasse): string;
     procedure FormShow(Sender: TObject);
     procedure btnConsultarClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure comboOcorrenciaKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure comboBancoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure SMDBGrid1GetCellParams(Sender: TObject; Field: TField; AFont: TFont; var Background: TColor; Highlight: Boolean);
     procedure btnEnviarClick(Sender: TObject);
     procedure btnConsultaClick(Sender: TObject);
     procedure btnImpressaoClick(Sender: TObject);
     procedure SMDBGrid1TitleClick(Column: TColumn);
     procedure GerarRemessa1Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure EnviarEmail1Click(Sender: TObject);
+    procedure gridConsultaGetCellParams(Sender: TObject; Field: TField;
+      AFont: TFont; var Background: TColor; Highlight: Boolean);
   private
     { Private declarations }
     CampoConsulta: string;
     fDMCadDuplicata: TDMCadDuplicata;
+    ListaIdsIntegracao: string;
+    ListaIdsDuplicatas : TStringList;
     function fnc_Montar_IdIntegracao: string;
-    procedure prc_Consulta_Duplicata;
+    function fnc_Montar_Lista: TStringList;
+    procedure prc_Consultar_Duplicata;
+    procedure prc_Consultar_TecnoSpeed;
     function CarregaConfig(Filial: Integer; Tipo: Integer): Boolean;
     procedure DoOnBoletoException(ASender: TObject; const aExceptionMessage: WideString);
     function fnc_Verificar: Boolean;
     function fnc_Montar_Envio: TStringList;
+    procedure prc_Email_TecnoSpeed;
+    procedure prc_Montar_IDDuplicatas;
+    procedure prc_Gravar_Historico(Historico : String);
+    procedure prc_Criar_CampoClient;
+    function fnc_Descartar_Boleto(ID_Integracao : String) : Boolean;
   public
     FBoletoX: TspdBoletoX;
+    ffrmConsDetalhe : TfrmConsultaDetalheTecno;
     { Public declarations }
   end;
 
@@ -92,186 +110,13 @@ uses
 {$R *.dfm}
 
 procedure TfrmConsDuplicata.btnConsultaClick(Sender: TObject);
-var
-  _ConsultarList: IspdRetConsultarLista;
-  _ConsultarItem: IspdRetConsultarTituloItem;
-  i, j, k, l: Integer;
 begin
-  inherited;
   if fDMCadDuplicata.qryConsulta_DuplicataID_INTEGRACAO.AsString = EmptyStr then
   begin
     Application.MessageBox('Título ainda não enviado!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
     Exit;
   end;
-  if not (CarregaConfig(comboFilial.KeyValue, 1)) then
-    Application.MessageBox('Configurações inválidas!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
-  mmResposta.Lines.Clear;
-  mmResposta.Refresh;
-  mmResposta.Lines.BeginUpdate;
-
-  try
-    _ConsultarList := FBoletoX.Consultar(fDMCadDuplicata.qryConsulta_DuplicataID_INTEGRACAO.AsString);
-
-    mmResposta.Lines.Add('.:: Consultar Título ::.');
-    mmResposta.Lines.Add('Mensagem: ' + _ConsultarList.Mensagem);
-    mmResposta.Lines.Add('Status: ' + _ConsultarList.Status);
-
-    if _ConsultarList.ErroConexao <> '' then
-      mmResposta.Lines.Add('Erro Conexão: ' + _ConsultarList.ErroConexao);
-
-    mmResposta.Lines.Add('');
-
-    while _ConsultarList.Count <> 0 do
-    begin
-      for i := 0 to pred(_ConsultarList.Count) do    //o conteúdo de pred é equivalente a (_ConsultarList.Count - 1)
-      begin
-        _ConsultarItem := _ConsultarList.Item[i];
-        mmResposta.Lines.Add('ITEM: ' + IntToStr(i + 1));
-        mmResposta.Lines.Add('  IdIntegracao: ' + _ConsultarItem.IdIntegracao);
-        mmResposta.Lines.Add('  Situacao: ' + _ConsultarItem.Situacao);
-        mmResposta.Lines.Add('  Motivo: ' + _ConsultarItem.Motivo);
-        mmResposta.Lines.Add('');
-        mmResposta.Lines.Add('CEDENTE:');
-        mmResposta.Lines.Add('  Agencia: ' + _ConsultarItem.CedenteAgencia);
-        mmResposta.Lines.Add('  AgenciaDV: ' + _ConsultarItem.CedenteAgenciaDV);
-        mmResposta.Lines.Add('  Código Banco: ' + _ConsultarItem.CedenteCodigoBanco);
-        mmResposta.Lines.Add('  Carteira: ' + _ConsultarItem.CedenteCarteira);
-        mmResposta.Lines.Add('  Conta: ' + _ConsultarItem.CedenteConta);
-        mmResposta.Lines.Add('  DV da conta: ' + _ConsultarItem.CedenteContaNumeroDV);
-        mmResposta.Lines.Add('  Numero Convênio: ' + _ConsultarItem.CedenteNumeroConvenio);
-        mmResposta.Lines.Add('');
-        mmResposta.Lines.Add('SACADO:');
-        mmResposta.Lines.Add('  CPFCNPJ: ' + _ConsultarItem.SacadoCPFCNPJ);
-        mmResposta.Lines.Add('  Nome: ' + _ConsultarItem.SacadoNome);
-        mmResposta.Lines.Add('  Telefone: ' + _ConsultarItem.SacadoTelefone);
-        mmResposta.Lines.Add('  Celular: ' + _ConsultarItem.SacadoCelular);
-        mmResposta.Lines.Add('  Email: ' + _ConsultarItem.SacadoEmail);
-        mmResposta.Lines.Add('  Endereço Número: ' + _ConsultarItem.SacadoEnderecoNumero);
-        mmResposta.Lines.Add('  Endereço Bairro: ' + _ConsultarItem.SacadoEnderecoBairro);
-        mmResposta.Lines.Add('  Endereço CEP: ' + _ConsultarItem.SacadoEnderecoCEP);
-        mmResposta.Lines.Add('  Endereço Cidade: ' + _ConsultarItem.SacadoEnderecoCidade);
-        mmResposta.Lines.Add('  Endereço Complemento: ' + _ConsultarItem.SacadoEnderecoComplemento);
-        mmResposta.Lines.Add('  Endereço Logradouro: ' + _ConsultarItem.SacadoEnderecoLogradouro);
-        mmResposta.Lines.Add('  Endereço País: ' + _ConsultarItem.SacadoEnderecoPais);
-        mmResposta.Lines.Add('  Endereço UF: ' + _ConsultarItem.SacadoEnderecoUF);
-        mmResposta.Lines.Add('  Sacador Avalista: ' + _ConsultarItem.TituloSacadorAvalista);
-        mmResposta.Lines.Add('  Sacador Avalista Inscricao: ' + _ConsultarItem.TituloInscricaoSacadorAvalista);
-        mmResposta.Lines.Add('  Endereço Sacador Avalista: ' + _ConsultarItem.TituloSacadorAvalistaEndereco);
-        mmResposta.Lines.Add('  Cidade Sacador Avalista: ' + _ConsultarItem.TituloSacadorAvalistaCidade);
-        mmResposta.Lines.Add('  CEP Sacador Avalista: ' + _ConsultarItem.TituloSacadorAvalistaCEP);
-        mmResposta.Lines.Add('  UF Sacador Avalista: ' + _ConsultarItem.TituloSacadorAvalistaUF);
-        mmResposta.Lines.Add('');
-        mmResposta.Lines.Add('TÍTULO:');
-        mmResposta.Lines.Add('  Nosso Número: ' + _ConsultarItem.TituloNossoNumero);
-        mmResposta.Lines.Add('  Número Documento: ' + _ConsultarItem.TituloNumeroDocumento);
-        mmResposta.Lines.Add('  Nosso Número Impressão: ' + _ConsultarItem.TituloNossoNumeroImpressao);
-        mmResposta.Lines.Add('  Origem Documento: ' + _ConsultarItem.TituloOrigemDocumento);
-        mmResposta.Lines.Add('  Linha Digitável: ' + _ConsultarItem.TituloLinhaDigitavel);
-        mmResposta.Lines.Add('  Código de Barras: ' + _ConsultarItem.TituloCodigoBarras);
-        mmResposta.Lines.Add('  Código Emissão Bloqueto: ' + _ConsultarItem.TituloCodEmissaoBloqueto);
-        mmResposta.Lines.Add('  Titulo Aceite: ' + _ConsultarItem.TituloAceite);
-        mmResposta.Lines.Add('  Avalista: ' + _ConsultarItem.TituloInscricaoSacadorAvalista);
-        mmResposta.Lines.Add('  Doc Espécie: ' + _ConsultarItem.TituloDocEspecie);
-        mmResposta.Lines.Add('  Postagem: ' + _ConsultarItem.TituloPostagemBoleto);
-
-        mmResposta.Lines.Add('  Código para baixa ou devolução: ' + _ConsultarItem.TituloCodBaixaDevolucao);
-        mmResposta.Lines.Add('  Prazo para baixa ou devolução: ' + _ConsultarItem.TituloPrazoBaixa);
-        mmResposta.Lines.Add('  Data Emissão: ' + _ConsultarItem.TituloDataEmissao);
-        mmResposta.Lines.Add('  Forçar Fator Vencimento: ' + BoolToStr(_ConsultarItem.TituloForcarFatorVencimento, True));
-        mmResposta.Lines.Add('  Data Vencimento: ' + _ConsultarItem.TituloDataVencimento);
-        mmResposta.Lines.Add('  Código de Desconto: ' + _ConsultarItem.TituloCodDesconto);
-        mmResposta.Lines.Add('  Data Desconto: ' + _ConsultarItem.TituloDataDesconto);
-        mmResposta.Lines.Add('  Valor Desconto: ' + FloatToStr(_ConsultarItem.TituloValorDescontoTaxa));
-        mmResposta.Lines.Add('  Código de Desconto2: ' + _ConsultarItem.TituloCodDesconto2);
-        mmResposta.Lines.Add('  Outras Deducoes: ' + _ConsultarItem.TituloOutrasDeducoes);
-        mmResposta.Lines.Add('  Data Desconto: ' + _ConsultarItem.TituloDataDesconto2);
-        mmResposta.Lines.Add('  Valor Desconto: ' + FloatToStr(_ConsultarItem.TituloValorDescontoTaxa2));
-        mmResposta.Lines.Add('  Código de Juros: ' + _ConsultarItem.TituloCodigoJuros);
-        mmResposta.Lines.Add('  Data Juros: ' + _ConsultarItem.TituloDataJuros);
-        mmResposta.Lines.Add('  Valor Juros: ' + FloatToStr(_ConsultarItem.TituloValorJuros));
-        mmResposta.Lines.Add('  Prazo Protesto: ' + _ConsultarItem.TituloPrazoProtesto);
-        mmResposta.Lines.Add('  Instrucoes: ' + _ConsultarItem.TituloInstrucoes);
-        mmResposta.Lines.Add('  Mensagem 1: ' + _ConsultarItem.TituloMensagem01);
-        mmResposta.Lines.Add('  Mensagem 2: ' + _ConsultarItem.TituloMensagem02);
-        mmResposta.Lines.Add('  Mensagem 3: ' + _ConsultarItem.TituloMensagem03);
-        mmResposta.Lines.Add('  TítuloInstrucao 1: ' + _ConsultarItem.TituloInstrucao1);
-        mmResposta.Lines.Add('  TítuloInstrucao 2: ' + _ConsultarItem.TituloInstrucao2);
-        mmResposta.Lines.Add('  Informacoes Adicionais: ' + _ConsultarItem.TituloInformacoesAdicionais);
-        mmResposta.Lines.Add('  Local Pagamento: ' + _ConsultarItem.TituloLocalPagamento);
-        mmResposta.Lines.Add('  Parcela: ' + _ConsultarItem.TituloParcela);
-        mmResposta.Lines.Add('  Variacao Carteira: ' + _ConsultarItem.TituloVariacaoCarteira);
-        mmResposta.Lines.Add('  Categoria: ' + _ConsultarItem.TituloCategoria);
-        mmResposta.Lines.Add('  Modalidade: ' + _ConsultarItem.TituloModalidade);
-        mmResposta.Lines.Add('  Cip: ' + _ConsultarItem.TituloCip);
-        mmResposta.Lines.Add('  Ios "utilizado apenas pelo Santander": ' + _ConsultarItem.TituloIos);
-        mmResposta.Lines.Add('  Cod Cliente "exclusivo para os bancos HSBC e Safra": ' + _ConsultarItem.TituloCodCliente);
-        mmResposta.Lines.Add('  Valor: ' + FloatToStr(_ConsultarItem.TituloValor));
-        mmResposta.Lines.Add('  Pagamento Minimo: ' + FloatToStr(_ConsultarItem.TituloPagamentoMinimo));
-        mmResposta.Lines.Add('  Data Crédito: ' + _ConsultarItem.PagamentoDataCredito);
-        mmResposta.Lines.Add('  Valor Cobrado: ' + FloatToStr(_ConsultarItem.TituloValorCobrado));
-        mmResposta.Lines.Add('  Título Pago: ' + BoolToStr(_ConsultarItem.PagamentoRealizado));
-        mmResposta.Lines.Add('  Valor Crédito: ' + FloatToStr(_ConsultarItem.PagamentoValorCredito));
-        mmResposta.Lines.Add('  Valor Outros Acréscimos: ' + FloatToStr(_ConsultarItem.TituloValorOutrosAcrescimos));
-        mmResposta.Lines.Add('  Valor Pago: ' + FloatToStr(_ConsultarItem.PagamentoValorPago));
-        mmResposta.Lines.Add('  Valor Taxa Cobrança: ' + FloatToStr(_ConsultarItem.PagamentoValorTaxaCobranca));
-        mmResposta.Lines.Add('  Valor Abatimento: ' + FloatToStr(_ConsultarItem.TituloValorAbatimento));
-        mmResposta.Lines.Add('  Valor Outras Despesas: ' + FloatToStr(_ConsultarItem.PagamentoValorOutrasDespesas));
-        mmResposta.Lines.Add('  Valor IOF: ' + FloatToStr(_ConsultarItem.PagamentoValorIOF));
-        mmResposta.Lines.Add('  Código Multa: ' + _ConsultarItem.TituloCodigoMulta);
-        mmResposta.Lines.Add('  Valor Multa: ' + FloatToStr(_ConsultarItem.TituloValorMulta));
-        mmResposta.Lines.Add('  Valor Multa Taxa: ' + FloatToStr(_ConsultarItem.TituloValorMultaTaxa));
-        mmResposta.Lines.Add('  Data Multa: ' + _ConsultarItem.PagamentoData);
-        mmResposta.Lines.Add('  Data Pagamento: ' + _ConsultarItem.PagamentoData);
-        mmResposta.Lines.Add('  Valor Outros Créditos: ' + FloatToStr(_ConsultarItem.PagamentoValorOutrosCreditos));
-        mmResposta.Lines.Add('  Pagamento Valor Desconto: ' + FloatToStr(_ConsultarItem.PagamentoValorDesconto));
-        mmResposta.Lines.Add('  Pagamento Valor Acréscimos: ' + FloatToStr(_ConsultarItem.PagamentoValorAcrescimos));
-        mmResposta.Lines.Add('  Pagamento Valor Abatimento: ' + FloatToStr(_ConsultarItem.PagamentoValorAbatimento));
-        mmResposta.Lines.Add('  Impressão Visualizada: ' + BoolToStr(_ConsultarItem.ImpressaoVisualizada, True));   //Converte o retorno para "False" ou "True"
-        mmResposta.Lines.Add('  Impressão Visualizada Data: ' + (_ConsultarItem.TituloDataImpressaoVisualizada));
-        mmResposta.Lines.Add('');
-
-        { ---> Método removido, sendo substituído pelo _ConsultarItem.CountTituloMovimentos
-               que está exemplificado logo abaixo do trecho comentado.
-        if _ConsultarItem.TituloOcorrencias <> nil then
-        begin
-          mmoResposta.Lines.Add('  LISTA DE OCORRÊNCIAS:');
-          for j := 0 to _ConsultarItem.TituloOcorrencias.Count - 1 do
-          begin
-            mmoResposta.Lines.Add('    Código: ' + IntToStr(j+1) + ': ' + _ConsultarItem.TituloOcorrencias.Item[j].Codigo);
-            mmoResposta.Lines.Add('    Mensagem: ' + IntToStr(j+1) + ': ' + _ConsultarItem.TituloOcorrencias.Item[j].Mensagem);
-          end;
-          mmoResposta.Lines.Add('------------');
-        end;
-        }
-
-
-        for k := 0 to _ConsultarItem.CountTituloMovimentos - 1 do
-        begin
-          mmResposta.Lines.Add('  MOVIMENTOS:');
-          mmResposta.Lines.Add('  Movimento Código: ' + _ConsultarItem.TituloMovimentos[k].Codigo);
-          mmResposta.Lines.Add('  Movimento Mensagem: ' + _ConsultarItem.TituloMovimentos[k].Mensagem);
-          mmResposta.Lines.Add('  Movimento Data: ' + _ConsultarItem.TituloMovimentos[k].Data);
-          mmResposta.Lines.Add('  Movimento Taxa: ' + FloatToStr(_ConsultarItem.TituloMovimentos[k].Taxa));
-          for l := 0 to _ConsultarItem.TituloMovimentos[k].CountOcorrencias - 1 do
-          begin
-            mmResposta.Lines.Add('  OCORRÊNCIAS:');
-            mmResposta.Lines.Add('     Ocorrências Código: ' + _ConsultarItem.TituloMovimentos[k].Ocorrencias[l].Codigo);
-            mmResposta.Lines.Add('     Ocorrências Mensagem: ' + _ConsultarItem.TituloMovimentos[k].Ocorrencias[l].Mensagem);
-          end;
-          mmResposta.Lines.Add('');
-        end;
-
-      end;
-
-      _ConsultarList.PaginaSeguinte;           //Utilize este parâmetro quando a consulta for feita com mais de 1000 idIntegracao por vez. O While fará a consulta de 20 em 20 idIntegracao, e o "PaginaSeguinte" repete a consulta enquanto houverem páginas a serem consultadas.
-
-    end;
-
-  finally
-    mmResposta.Lines.EndUpdate;
-    pg_Principal.ActivePage := ts_Mensagem;
-  end;
-
+  prc_Consultar_TecnoSpeed;
 end;
 
 procedure TfrmConsDuplicata.btnConsultarClick(Sender: TObject);
@@ -291,7 +136,7 @@ begin
   end;
   mmResposta.Lines.Clear;
   mmEnvio.Lines.Clear;
-  prc_Consulta_Duplicata;
+  prc_Consultar_Duplicata;
 end;
 
 procedure TfrmConsDuplicata.btnEnviarClick(Sender: TObject);
@@ -306,7 +151,6 @@ begin
     Exit;
   if not (CarregaConfig(comboFilial.KeyValue, 1)) then
     Application.MessageBox('Configurações inválidas!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
-
   vLista := TStringList.Create();
   mmResposta.Lines.Clear;
   mmResposta.Refresh;
@@ -328,7 +172,6 @@ begin
 
   try
     _BoletoList := FBoletoX.Incluir(mmEnvio.Lines.Text);
-
     mmResposta.Lines.Clear;
     mmResposta.Lines.Add('.:: Incluir Boleto ::.');
     mmResposta.Lines.Add('Mensgem: ' + _BoletoList.Mensagem);
@@ -355,12 +198,9 @@ begin
         listaIdsIntegracao := _BoletoList[i].IdIntegracao
       else
         listaIdsIntegracao := _BoletoList[i].IdIntegracao + ',' + listaIdsIntegracao;
-
     end;
-
     mmResposta.SelStart := 1;
     mmResposta.SelLength := 1;
-
   finally
     mmResposta.Lines.EndUpdate;
     pg_Principal.ActivePage := ts_Mensagem;
@@ -376,7 +216,6 @@ var
   _Impressao: IspdRetConsultarLoteImpressao;
   _SalvarPDFLote: IspdRetSalvarLoteImpressaoPDF;
   ProtocoloImpressao: string;
-  ListaID: string;
   numeroConsultas: Integer;
 begin
   inherited;
@@ -388,15 +227,16 @@ begin
 
   pg_Principal.ActivePage := ts_Mensagem;
   TipoImpressao := tpNormal;
+
   if not (CarregaConfig(comboFilial.KeyValue, 1)) then
     Application.MessageBox('Configurações inválidas!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
   mmResposta.Lines.Clear;
   mmResposta.Refresh;
   mmResposta.Lines.BeginUpdate;
 
-  ListaID := fnc_Montar_IdIntegracao;
+  ListaIdsIntegracao := fnc_Montar_IdIntegracao;
 
-  _ImprimirLoteList := FBoletoX.ImprimirLote(ListaID, IntToStr(integer(TipoImpressao)));
+  _ImprimirLoteList := FBoletoX.ImprimirLote(ListaIdsIntegracao, IntToStr(integer(TipoImpressao)));
   Sleep(2000);
   if _ImprimirLoteList.Protocolo <> EmptyStr then
     ProtocoloImpressao := _ImprimirLoteList.Protocolo;
@@ -538,6 +378,43 @@ begin
   MessageBox(0, PChar(aExceptionMessage), 'Exceção do BoletoX', MB_ICONERROR or MB_OK);
 end;
 
+procedure TfrmConsDuplicata.EnviarEmail1Click(Sender: TObject);
+var
+  vLista : TStringList;
+begin
+  inherited;
+  if fDMCadDuplicata.qryConsulta_DuplicataID_INTEGRACAO.AsString = EmptyStr then
+  begin
+    Application.MessageBox('Título ainda não enviado!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
+    Exit;
+  end;
+  if not (CarregaConfig(comboFilial.KeyValue, 1)) then
+    Application.MessageBox('Configurações inválidas!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
+  prc_Email_TecnoSpeed;
+end;
+
+function TfrmConsDuplicata.fnc_Descartar_Boleto(ID_Integracao: String): Boolean;
+var
+  _DescarteList: IspdretDescartarLista;
+  _DescarteItem: IspdRetDescartarTituloItem;
+  i: Integer;
+begin
+  try
+    _DescarteList := FBoletoX.Descartar(ID_Integracao);
+    if AnsiSameText(_DescarteList.Status, 'ERRO') then
+    begin
+       Result := False;
+       MessageDlg(ConverteErroClasse(_DescarteList.ErroClasse),mtInformation,[mbOK],0);
+       Exit;
+    end;
+    for i := 0 to _DescarteList.Count - 1 do
+    begin
+      Result := True;
+    end;
+  finally
+  end;
+end;
+
 function TfrmConsDuplicata.fnc_Montar_Envio: TStringList;
 var
   vInstrucao1: string;
@@ -580,22 +457,22 @@ begin
     qryConsulta.SQL.Add('select P.EMAIL_PGTO, P.NOME NOME_SACADO, P.CNPJ_CPF, P.CEP, P.DDDCELULAR, P.CELULAR, P.NUM_END, ');
     qryConsulta.SQL.Add('P.BAIRRO, P.CIDADE, P.ENDERECO, PA.NOME NOME_PAIS, P.UF, P.DDDFONE1, P.TELEFONE1 FROM PESSOA P ');
     qryConsulta.SQL.Add('left join PAIS PA on P.ID_PAIS = PA.ID ');
-    qryConsulta.SQL.Add('where ID = :ID');
+    qryConsulta.SQL.Add('where P.CODIGO = :ID');
     qryConsulta.ParamByName('ID').AsInteger := qryConsulta_DuplicataID_PESSOA.AsInteger;
     qryConsulta.Open();
     if not (qryConsulta.IsEmpty) then
     begin
-      Result.Add('SacadoEmail=' + qryConsulta.FieldByName('EMAIL_PGTO').Value);
-      Result.Add('SacadoNome=' + qryConsulta.FieldByName('NOME_SACADO').Value);
-      Result.Add('SacadoCPFCNPJ=' + qryConsulta.FieldByName('CNPJ_CPF').Value);
-      Result.Add('SacadoEnderecoCEP=' + qryConsulta.FieldByName('CEP').Value);
-      Result.Add('SacadoEnderecoNumero=' + qryConsulta.FieldByName('NUM_END').Value);
-      Result.Add('SacadoEnderecoBairro=' + qryConsulta.FieldByName('BAIRRO').Value);
-      Result.Add('SacadoEnderecoCidade=' + qryConsulta.FieldByName('CIDADE').Value);
-      Result.Add('SacadoEnderecoLogradouro=' + qryConsulta.FieldByName('ENDERECO').Value);
-      Result.Add('SacadoEnderecoPais=' + qryConsulta.FieldByName('NOME_PAIS').Value);
-      Result.Add('SacadoEnderecoUF=' + qryConsulta.FieldByName('UF').Value);
-      Result.Add('SacadoTelefone=' + qryConsulta.FieldByName('TELEFONE1').Value);
+      Result.Add('SacadoEmail=' + qryConsulta.FieldByName('EMAIL_PGTO').AsString);
+      Result.Add('SacadoNome=' + qryConsulta.FieldByName('NOME_SACADO').AsString);
+      Result.Add('SacadoCPFCNPJ=' + qryConsulta.FieldByName('CNPJ_CPF').AsString);
+      Result.Add('SacadoEnderecoCEP=' + qryConsulta.FieldByName('CEP').AsString);
+      Result.Add('SacadoEnderecoNumero=' + qryConsulta.FieldByName('NUM_END').AsString);
+      Result.Add('SacadoEnderecoBairro=' + qryConsulta.FieldByName('BAIRRO').AsString);
+      Result.Add('SacadoEnderecoCidade=' + qryConsulta.FieldByName('CIDADE').AsString);
+      Result.Add('SacadoEnderecoLogradouro=' + qryConsulta.FieldByName('ENDERECO').AsString);
+      Result.Add('SacadoEnderecoPais=' + qryConsulta.FieldByName('NOME_PAIS').AsString);
+      Result.Add('SacadoEnderecoUF=' + qryConsulta.FieldByName('UF').AsString);
+      Result.Add('SacadoTelefone=' + qryConsulta.FieldByName('TELEFONE1').AsString);
     end;
     //Fim Sacado
     // Inicio Título
@@ -639,6 +516,13 @@ begin
   end;
 end;
 
+procedure TfrmConsDuplicata.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  ListaIdsDuplicatas.Free;
+end;
+
 procedure TfrmConsDuplicata.FormCreate(Sender: TObject);
 begin
   inherited;
@@ -654,6 +538,8 @@ begin
   fDMCadDuplicata.qryContas.Open();
   if qryFilial.RecordCount = 1 then
     comboFilial.KeyValue := qryFilialID.AsInteger;
+  ListaIdsDuplicatas := TStringList.Create;
+
 
   if fDMCadDuplicata.qryContas.RecordCount = 1 then
   begin
@@ -670,6 +556,8 @@ var
   i, j: Integer;
   conteudoRemessa: TStringList;
   ListaID : String;
+  NomeRemessa : String;
+  GeraNomeRemessa : TNomeRemessa;
 begin
   inherited;
   if fDMCadDuplicata.qryConsulta_DuplicataID_INTEGRACAO.AsString = EmptyStr then
@@ -684,7 +572,9 @@ begin
   mmResposta.Lines.Clear;
   mmResposta.Refresh;
   mmResposta.Lines.BeginUpdate;
-
+  GeraNomeRemessa := TNomeRemessa.create;
+  GeraNomeRemessa.TipoBanco := tpSicredi;
+  NomeRemessa := GeraNomeRemessa.GeraNomeArquivo(fDMCadDuplicata.qryContasID.AsString);
   ListaID := fnc_Montar_IdIntegracao;
 
   try
@@ -708,29 +598,49 @@ begin
       mmResposta.Lines.Add('  Transmissão automática?: ' + BoolToStr(_RemessaItem.TransmissaoAutomatica));
       mmResposta.Lines.Add('  Erro: ' + _RemessaItem.Erro);
 
-      conteudoRemessa := TStringList.Create;                           // ---
-      conteudoRemessa.Text := UTF8Encode(_RemessaItem.Remessa);               //    |--> Salva o conteúdo da remessa em um arquivo texto
-      conteudoRemessa.SaveToFile('C:\Temp\conteudoRemessaUTF8.txt');   // ---
+      conteudoRemessa := TStringList.Create;//---
+      conteudoRemessa.Text := UTF8Encode(_RemessaItem.Remessa); //    |--> Salva o conteúdo da remessa em um arquivo texto
+      conteudoRemessa.SaveToFile(NomeRemessa);//---
 
       for j := 0 to _RemessaItem.Titulos.Count-1 do
       begin
         mmResposta.Lines.Add('  IdIntegracao ' + IntToStr(j+1) + ': ' + _RemessaItem.Titulos.Item[j]);
       end;
-
       mmResposta.Lines.Add('');
-
       conteudoRemessa.Free;
-
     end;
-
+    prc_Gravar_Historico('Envio Remessa');
   finally
     mmResposta.Lines.EndUpdate;
-
   end;
 
 end;
 
-procedure TfrmConsDuplicata.prc_Consulta_Duplicata;
+procedure TfrmConsDuplicata.gridConsultaGetCellParams(Sender: TObject;
+  Field: TField; AFont: TFont; var Background: TColor; Highlight: Boolean);
+begin
+  inherited;
+  if fDMCadDuplicata.qryConsulta_Duplicata.IsEmpty then
+    Exit;
+  if (fDMCadDuplicata.qryConsulta_DuplicataID_INTEGRACAO.AsString <> EmptyStr) then
+  begin
+    Background := clYellow;
+    AFont.Color := clWhite;
+  end;
+  if (fDMCadDuplicata.qryConsulta_DuplicataID_IMPRESSAO.AsString <> EmptyStr) then
+  begin
+    Background := clOlive;
+    AFont.Color := clWhite;
+  end;
+  if (fDMCadDuplicata.qryConsulta_DuplicataDTVENCIMENTO.AsDateTime < Date) then
+  begin
+    Background := clRed;
+    AFont.Color := clWhite;
+  end;
+
+end;
+
+procedure TfrmConsDuplicata.prc_Consultar_Duplicata;
 begin
   fDMCadDuplicata.qryConsulta_Duplicata.SQL.Text := fDMCadDuplicata.ctCommandDup;
   fDMCadDuplicata.qryConsulta_Duplicata.Close;
@@ -760,10 +670,364 @@ begin
 
 end;
 
+procedure TfrmConsDuplicata.prc_Consultar_TecnoSpeed;
+var
+  _ConsultarList: IspdRetConsultarLista;
+  _ConsultarItem: IspdRetConsultarTituloItem;
+  i, j, k, l: Integer;
+begin
+  inherited;
+  if not (CarregaConfig(comboFilial.KeyValue, 1)) then
+    Application.MessageBox('Configurações inválidas!', 'ATENÇÃO', MB_OK + MB_ICONWARNING);
+  mmResposta.Lines.Clear;
+  mmResposta.Refresh;
+  mmResposta.Lines.BeginUpdate;
+  listaIdsIntegracao :=  fnc_Montar_IdIntegracao;
+  try
+    _ConsultarList := FBoletoX.Consultar(listaIdsIntegracao);
+
+    mmResposta.Lines.Add('.:: Consultar Título ::.');
+    mmResposta.Lines.Add('Mensagem: ' + _ConsultarList.Mensagem);
+    mmResposta.Lines.Add('Status: ' + _ConsultarList.Status);
+
+    if _ConsultarList.ErroConexao <> '' then
+      mmResposta.Lines.Add('Erro Conexão: ' + _ConsultarList.ErroConexao);
+
+    mmResposta.Lines.Add('');
+
+    prc_Criar_CampoClient;
+
+    while _ConsultarList.Count <> 0 do
+    begin
+      for i := 0 to pred(_ConsultarList.Count) do    //o conteúdo de pred é equivalente a (_ConsultarList.Count - 1)
+      begin
+        _ConsultarItem := _ConsultarList.Item[i];
+        mmResposta.Lines.Add('ITEM: ' + IntToStr(i + 1));
+
+        fDMCadDuplicata.cdsConsulta.Insert;
+        fDMCadDuplicata.cdsConsulta.FieldByName('Item').AsInteger := i;
+        fDMCadDuplicata.cdsConsulta.FieldByName('IdIntegracao').AsString := _ConsultarItem.IdIntegracao;
+        fDMCadDuplicata.cdsConsulta.FieldByName('Situacao').AsString := _ConsultarItem.Situacao;
+        fDMCadDuplicata.cdsConsulta.FieldByName('Agencia').AsString := _ConsultarItem.CedenteAgencia;
+        fDMCadDuplicata.cdsConsulta.FieldByName('AgenciaDV').AsString := _ConsultarItem.CedenteAgenciaDV;
+        fDMCadDuplicata.cdsConsulta.FieldByName('CodigoBanco').AsString := _ConsultarItem.CedenteCodigoBanco;
+        fDMCadDuplicata.cdsConsulta.FieldByName('Carteira').AsString := _ConsultarItem.CedenteCarteira;
+        fDMCadDuplicata.cdsConsulta.FieldByName('Conta').AsString := _ConsultarItem.CedenteConta;
+        fDMCadDuplicata.cdsConsulta.FieldByName('DVconta').AsString := _ConsultarItem.CedenteContaNumeroDV;
+        fDMCadDuplicata.cdsConsulta.FieldByName('NumeroConvenio').AsString := _ConsultarItem.CedenteNumeroConvenio;
+        fDMCadDuplicata.cdsConsulta.FieldByName('CPFCNPJ').AsString := _ConsultarItem.SacadoCPFCNPJ;
+        fDMCadDuplicata.cdsConsulta.FieldByName('Nome').AsString := _ConsultarItem.SacadoNome;
+        fDMCadDuplicata.cdsConsulta.FieldByName('Email').AsString := _ConsultarItem.SacadoEmail;
+        fDMCadDuplicata.cdsConsulta.FieldByName('NossoNumero').AsString := _ConsultarItem.TituloNossoNumero;
+        fDMCadDuplicata.cdsConsulta.FieldByName('NumeroDocument').AsString := _ConsultarItem.TituloNumeroDocumento;
+        fDMCadDuplicata.cdsConsulta.Post;
+
+        mmResposta.Lines.Add('  IdIntegracao: ' + _ConsultarItem.IdIntegracao);
+        mmResposta.Lines.Add('  Situacao: ' + _ConsultarItem.Situacao);
+        mmResposta.Lines.Add('  Motivo: ' + _ConsultarItem.Motivo);
+        mmResposta.Lines.Add('');
+        mmResposta.Lines.Add('CEDENTE:');
+        mmResposta.Lines.Add('  Agencia: ' + _ConsultarItem.CedenteAgencia);
+        mmResposta.Lines.Add('  AgenciaDV: ' + _ConsultarItem.CedenteAgenciaDV);
+        mmResposta.Lines.Add('  Código Banco: ' + _ConsultarItem.CedenteCodigoBanco);
+        mmResposta.Lines.Add('  Carteira: ' + _ConsultarItem.CedenteCarteira);
+        mmResposta.Lines.Add('  Conta: ' + _ConsultarItem.CedenteConta);
+        mmResposta.Lines.Add('  DV da conta: ' + _ConsultarItem.CedenteContaNumeroDV);
+        mmResposta.Lines.Add('  Numero Convênio: ' + _ConsultarItem.CedenteNumeroConvenio);
+        mmResposta.Lines.Add('');
+        mmResposta.Lines.Add('SACADO:');
+        mmResposta.Lines.Add('  CPFCNPJ: ' + _ConsultarItem.SacadoCPFCNPJ);
+        mmResposta.Lines.Add('  Nome: ' + _ConsultarItem.SacadoNome);
+        mmResposta.Lines.Add('  Telefone: ' + _ConsultarItem.SacadoTelefone);
+        mmResposta.Lines.Add('  Celular: ' + _ConsultarItem.SacadoCelular);
+        mmResposta.Lines.Add('  Email: ' + _ConsultarItem.SacadoEmail);
+        mmResposta.Lines.Add('  Endereço Número: ' + _ConsultarItem.SacadoEnderecoNumero);
+        mmResposta.Lines.Add('  Endereço Bairro: ' + _ConsultarItem.SacadoEnderecoBairro);
+        mmResposta.Lines.Add('  Endereço CEP: ' + _ConsultarItem.SacadoEnderecoCEP);
+        mmResposta.Lines.Add('  Endereço Cidade: ' + _ConsultarItem.SacadoEnderecoCidade);
+        mmResposta.Lines.Add('  Endereço Complemento: ' + _ConsultarItem.SacadoEnderecoComplemento);
+        mmResposta.Lines.Add('  Endereço Logradouro: ' + _ConsultarItem.SacadoEnderecoLogradouro);
+        mmResposta.Lines.Add('  Endereço País: ' + _ConsultarItem.SacadoEnderecoPais);
+        mmResposta.Lines.Add('  Endereço UF: ' + _ConsultarItem.SacadoEnderecoUF);
+        mmResposta.Lines.Add('  Sacador Avalista: ' + _ConsultarItem.TituloSacadorAvalista);
+        mmResposta.Lines.Add('  Sacador Avalista Inscricao: ' + _ConsultarItem.TituloInscricaoSacadorAvalista);
+        mmResposta.Lines.Add('  Endereço Sacador Avalista: ' + _ConsultarItem.TituloSacadorAvalistaEndereco);
+        mmResposta.Lines.Add('  Cidade Sacador Avalista: ' + _ConsultarItem.TituloSacadorAvalistaCidade);
+        mmResposta.Lines.Add('  CEP Sacador Avalista: ' + _ConsultarItem.TituloSacadorAvalistaCEP);
+        mmResposta.Lines.Add('  UF Sacador Avalista: ' + _ConsultarItem.TituloSacadorAvalistaUF);
+        mmResposta.Lines.Add('');
+        mmResposta.Lines.Add('TÍTULO:');
+        mmResposta.Lines.Add('  Nosso Número: ' + _ConsultarItem.TituloNossoNumero);
+        mmResposta.Lines.Add('  Número Documento: ' + _ConsultarItem.TituloNumeroDocumento);
+        mmResposta.Lines.Add('  Nosso Número Impressão: ' + _ConsultarItem.TituloNossoNumeroImpressao);
+        mmResposta.Lines.Add('  Origem Documento: ' + _ConsultarItem.TituloOrigemDocumento);
+        mmResposta.Lines.Add('  Linha Digitável: ' + _ConsultarItem.TituloLinhaDigitavel);
+        mmResposta.Lines.Add('  Código de Barras: ' + _ConsultarItem.TituloCodigoBarras);
+        mmResposta.Lines.Add('  Código Emissão Bloqueto: ' + _ConsultarItem.TituloCodEmissaoBloqueto);
+        mmResposta.Lines.Add('  Titulo Aceite: ' + _ConsultarItem.TituloAceite);
+        mmResposta.Lines.Add('  Avalista: ' + _ConsultarItem.TituloInscricaoSacadorAvalista);
+        mmResposta.Lines.Add('  Doc Espécie: ' + _ConsultarItem.TituloDocEspecie);
+        mmResposta.Lines.Add('  Postagem: ' + _ConsultarItem.TituloPostagemBoleto);
+
+         {$REGION 'Complemento da consulta'}
+//        mmResposta.Lines.Add('  Código para baixa ou devolução: ' + _ConsultarItem.TituloCodBaixaDevolucao);
+//        mmResposta.Lines.Add('  Prazo para baixa ou devolução: ' + _ConsultarItem.TituloPrazoBaixa);
+//        mmResposta.Lines.Add('  Data Emissão: ' + _ConsultarItem.TituloDataEmissao);
+//        mmResposta.Lines.Add('  Forçar Fator Vencimento: ' + BoolToStr(_ConsultarItem.TituloForcarFatorVencimento, True));
+//        mmResposta.Lines.Add('  Data Vencimento: ' + _ConsultarItem.TituloDataVencimento);
+//        mmResposta.Lines.Add('  Código de Desconto: ' + _ConsultarItem.TituloCodDesconto);
+//        mmResposta.Lines.Add('  Data Desconto: ' + _ConsultarItem.TituloDataDesconto);
+//        mmResposta.Lines.Add('  Valor Desconto: ' + FloatToStr(_ConsultarItem.TituloValorDescontoTaxa));
+//        mmResposta.Lines.Add('  Código de Desconto2: ' + _ConsultarItem.TituloCodDesconto2);
+//        mmResposta.Lines.Add('  Outras Deducoes: ' + _ConsultarItem.TituloOutrasDeducoes);
+//        mmResposta.Lines.Add('  Data Desconto: ' + _ConsultarItem.TituloDataDesconto2);
+//        mmResposta.Lines.Add('  Valor Desconto: ' + FloatToStr(_ConsultarItem.TituloValorDescontoTaxa2));
+//        mmResposta.Lines.Add('  Código de Juros: ' + _ConsultarItem.TituloCodigoJuros);
+//        mmResposta.Lines.Add('  Data Juros: ' + _ConsultarItem.TituloDataJuros);
+//        mmResposta.Lines.Add('  Valor Juros: ' + FloatToStr(_ConsultarItem.TituloValorJuros));
+//        mmResposta.Lines.Add('  Prazo Protesto: ' + _ConsultarItem.TituloPrazoProtesto);
+//        mmResposta.Lines.Add('  Instrucoes: ' + _ConsultarItem.TituloInstrucoes);
+//        mmResposta.Lines.Add('  Mensagem 1: ' + _ConsultarItem.TituloMensagem01);
+//        mmResposta.Lines.Add('  Mensagem 2: ' + _ConsultarItem.TituloMensagem02);
+//        mmResposta.Lines.Add('  Mensagem 3: ' + _ConsultarItem.TituloMensagem03);
+//        mmResposta.Lines.Add('  TítuloInstrucao 1: ' + _ConsultarItem.TituloInstrucao1);
+//        mmResposta.Lines.Add('  TítuloInstrucao 2: ' + _ConsultarItem.TituloInstrucao2);
+//        mmResposta.Lines.Add('  Informacoes Adicionais: ' + _ConsultarItem.TituloInformacoesAdicionais);
+//        mmResposta.Lines.Add('  Local Pagamento: ' + _ConsultarItem.TituloLocalPagamento);
+//        mmResposta.Lines.Add('  Parcela: ' + _ConsultarItem.TituloParcela);
+//        mmResposta.Lines.Add('  Variacao Carteira: ' + _ConsultarItem.TituloVariacaoCarteira);
+//        mmResposta.Lines.Add('  Categoria: ' + _ConsultarItem.TituloCategoria);
+//        mmResposta.Lines.Add('  Modalidade: ' + _ConsultarItem.TituloModalidade);
+//        mmResposta.Lines.Add('  Cip: ' + _ConsultarItem.TituloCip);
+//        mmResposta.Lines.Add('  Ios "utilizado apenas pelo Santander": ' + _ConsultarItem.TituloIos);
+//        mmResposta.Lines.Add('  Cod Cliente "exclusivo para os bancos HSBC e Safra": ' + _ConsultarItem.TituloCodCliente);
+//        mmResposta.Lines.Add('  Valor: ' + FloatToStr(_ConsultarItem.TituloValor));
+//        mmResposta.Lines.Add('  Pagamento Minimo: ' + FloatToStr(_ConsultarItem.TituloPagamentoMinimo));
+//        mmResposta.Lines.Add('  Data Crédito: ' + _ConsultarItem.PagamentoDataCredito);
+//        mmResposta.Lines.Add('  Valor Cobrado: ' + FloatToStr(_ConsultarItem.TituloValorCobrado));
+//        mmResposta.Lines.Add('  Título Pago: ' + BoolToStr(_ConsultarItem.PagamentoRealizado));
+//        mmResposta.Lines.Add('  Valor Crédito: ' + FloatToStr(_ConsultarItem.PagamentoValorCredito));
+//        mmResposta.Lines.Add('  Valor Outros Acréscimos: ' + FloatToStr(_ConsultarItem.TituloValorOutrosAcrescimos));
+//        mmResposta.Lines.Add('  Valor Pago: ' + FloatToStr(_ConsultarItem.PagamentoValorPago));
+//        mmResposta.Lines.Add('  Valor Taxa Cobrança: ' + FloatToStr(_ConsultarItem.PagamentoValorTaxaCobranca));
+//        mmResposta.Lines.Add('  Valor Abatimento: ' + FloatToStr(_ConsultarItem.TituloValorAbatimento));
+//        mmResposta.Lines.Add('  Valor Outras Despesas: ' + FloatToStr(_ConsultarItem.PagamentoValorOutrasDespesas));
+//        mmResposta.Lines.Add('  Valor IOF: ' + FloatToStr(_ConsultarItem.PagamentoValorIOF));
+//        mmResposta.Lines.Add('  Código Multa: ' + _ConsultarItem.TituloCodigoMulta);
+//        mmResposta.Lines.Add('  Valor Multa: ' + FloatToStr(_ConsultarItem.TituloValorMulta));
+//        mmResposta.Lines.Add('  Valor Multa Taxa: ' + FloatToStr(_ConsultarItem.TituloValorMultaTaxa));
+//        mmResposta.Lines.Add('  Data Multa: ' + _ConsultarItem.PagamentoData);
+//        mmResposta.Lines.Add('  Data Pagamento: ' + _ConsultarItem.PagamentoData);
+//        mmResposta.Lines.Add('  Valor Outros Créditos: ' + FloatToStr(_ConsultarItem.PagamentoValorOutrosCreditos));
+//        mmResposta.Lines.Add('  Pagamento Valor Desconto: ' + FloatToStr(_ConsultarItem.PagamentoValorDesconto));
+//        mmResposta.Lines.Add('  Pagamento Valor Acréscimos: ' + FloatToStr(_ConsultarItem.PagamentoValorAcrescimos));
+//        mmResposta.Lines.Add('  Pagamento Valor Abatimento: ' + FloatToStr(_ConsultarItem.PagamentoValorAbatimento));
+//        mmResposta.Lines.Add('  Impressão Visualizada: ' + BoolToStr(_ConsultarItem.ImpressaoVisualizada, True));   //Converte o retorno para "False" ou "True"
+//        mmResposta.Lines.Add('  Impressão Visualizada Data: ' + (_ConsultarItem.TituloDataImpressaoVisualizada));
+
+           {$ENDREGION}
+
+        mmResposta.Lines.Add('');
+
+        if _ConsultarItem.Situacao = 'FALHA' then
+        begin
+          if MessageDlg('Duplicata nº: ' + _ConsultarItem.TituloNumeroDocumento +#13#10+ 'Deseja Descartar? ',mtConfirmation,[mbYes,mbNo],0) = mrYes then
+          begin
+            if fnc_Descartar_Boleto(_ConsultarItem.IdIntegracao) then
+            begin
+
+            end;
+          end;
+        end;
+
+
+        for k := 0 to _ConsultarItem.CountTituloMovimentos - 1 do
+        begin
+          mmResposta.Lines.Add('  MOVIMENTOS:');
+          mmResposta.Lines.Add('  Movimento Código: ' + _ConsultarItem.TituloMovimentos[k].Codigo);
+          mmResposta.Lines.Add('  Movimento Mensagem: ' + _ConsultarItem.TituloMovimentos[k].Mensagem);
+          mmResposta.Lines.Add('  Movimento Data: ' + _ConsultarItem.TituloMovimentos[k].Data);
+          mmResposta.Lines.Add('  Movimento Taxa: ' + FloatToStr(_ConsultarItem.TituloMovimentos[k].Taxa));
+          for l := 0 to _ConsultarItem.TituloMovimentos[k].CountOcorrencias - 1 do
+          begin
+            mmResposta.Lines.Add('  OCORRÊNCIAS:');
+            mmResposta.Lines.Add('     Ocorrências Código: ' + _ConsultarItem.TituloMovimentos[k].Ocorrencias[l].Codigo);
+            mmResposta.Lines.Add('     Ocorrências Mensagem: ' + _ConsultarItem.TituloMovimentos[k].Ocorrencias[l].Mensagem);
+          end;
+          mmResposta.Lines.Add('');
+        end;
+
+      end;
+
+      _ConsultarList.PaginaSeguinte;           //Utilize este parâmetro quando a consulta for feita com mais de 1000 idIntegracao por vez. O While fará a consulta de 20 em 20 idIntegracao, e o "PaginaSeguinte" repete a consulta enquanto houverem páginas a serem consultadas.
+
+    end;
+
+  finally
+    mmResposta.Lines.EndUpdate;
+    pg_Principal.ActivePage := ts_Mensagem;
+  end;
+  ffrmConsDetalhe := TfrmConsultaDetalheTecno.Create(nil);
+  CopiarDataSet(fDMCadDuplicata.cdsConsulta,ffrmConsDetalhe.cdsPadrao);
+  ffrmConsDetalhe.ShowModal;
+  FreeAndNil(ffrmConsDetalhe);
+end;
+
+procedure TfrmConsDuplicata.prc_Criar_CampoClient;
+begin
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('ITEM',ftInteger,0,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('IdIntegracao',ftString,10,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('Situacao',ftString,20,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('Agencia',ftString,04,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('AgenciaDV',ftString,04,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('CodigoBanco',ftString,06,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('Carteira',ftString,04,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('Conta',ftString,20,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('DVconta',ftString,02,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('NumeroConvenio',ftString,15,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('CPFCNPJ',ftString,18,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('Nome',ftString,30,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('Email',ftString,30,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('NossoNumero',ftString,20,false);
+  fDMCadDuplicata.prc_Criar_CampoClientDataSet('NumeroDocument',ftString,20,false);
+  fDMCadDuplicata.cdsConsulta.CreateDataSet;
+end;
+
+procedure TfrmConsDuplicata.prc_Email_TecnoSpeed;
+var
+  i, n : Integer;
+  TpImpressao: TEnumTipoImpressao;
+  EnviarEmailTecnoSpeed : TEnviarEmailTecnoSpeed;
+  _EnviarEmailLoteResposta: IspdRetEnvioEmailLote;
+  vLista : TStringList;
+  vListaEmail : TStringList;
+  ConfigEmail : TEmailEmpresa;
+begin
+  vLista := TStringList.Create;
+  vLista := fnc_Montar_Lista;
+  vListaEmail := TStringList.Create;
+  EnviarEmailTecnoSpeed := TEnviarEmailTecnoSpeed.create;
+  ConfigEmail := TEmailEmpresa.Create;
+  TpImpressao := tpNormal;
+  mmEnvio.Lines.Clear;
+  mmResposta.Lines.Clear;
+  pg_Principal.ActivePage := ts_Mensagem;
+  for I := 0 to vLista.Count - 1 do
+  begin
+    fDMCadDuplicata.qryConsulta_Duplicata.Locate('ID',vLista[i],[loCaseInsensitive]);
+    try
+      with EnviarEmailTecnoSpeed do
+      begin
+        IDIntegracao := fDMCadDuplicata.qryConsulta_DuplicataID_INTEGRACAO.AsString;
+        ConfigEmail.Tipo := opFinanceiro;
+        if ConfigEmail.Retornar_Email(fDMCadDuplicata.qryConsulta_DuplicataFILIAL.AsInteger,ConfigEmail.Tipo) then
+        begin
+          EmailNomeRemetente := ConfigEmail.NomeEmail;
+          EmailRemetente := ConfigEmail.Email;
+        end
+        else
+        begin
+          EmailNomeRemetente := SQLLocate('EMPRESA','ID','NOME',fDMCadDuplicata.qryConsulta_DuplicataFILIAL.AsString);
+          EmailRemetente := SQLLocate('EMPRESA','ID','EMAIL',fDMCadDuplicata.qryConsulta_DuplicataFILIAL.AsString);
+        end;
+        EmailAssunto := 'Boleto para pagamento nº: ' + fDMCadDuplicata.qryConsulta_DuplicataNUMDUPLICATA.AsString + '/' + fDMCadDuplicata.qryConsulta_DuplicataPARCELA.AsString;
+        EmailDestinatario := fDMCadDuplicata.qryConsulta_DuplicataEMAIL_PGTO.AsString;
+        case TEnumTipoEnvioAnexo(rdgAnexar.ItemIndex) of
+          tpAnexo :
+            begin
+              EmailAnexar := True;
+              EmailMensagem := 'Prezado cliente, segue boleto em anexo nº: ' +  fDMCadDuplicata.qryConsulta_DuplicataNUMDUPLICATA.AsString + '/' + fDMCadDuplicata.qryConsulta_DuplicataPARCELA.AsString + ' com vencimento em : ' + FormatDateTime('dd.mm.aaaa',fDMCadDuplicata.qryConsulta_DuplicataDTVENCIMENTO.AsDateTime);
+            end;
+          tpLink  :
+           begin
+            EmailAnexar := False;
+            EmailMensagem := 'Prezado cliente, segue link para pagamento de seu boleto nº: ' + fDMCadDuplicata.qryConsulta_DuplicataNUMDUPLICATA.AsString + '/' + fDMCadDuplicata.qryConsulta_DuplicataPARCELA.AsString + ' com vencimento em : ' + FormatDateTime('dd.mm.YYYY',fDMCadDuplicata.qryConsulta_DuplicataDTVENCIMENTO.AsDateTime) + ' ${linkBoleto}';
+           end;
+        end;
+        TipoImpressao := IntToStr(integer(TpImpressao));
+
+        vListaEmail :=  MontaEmailBoleto;
+        for n := 0 to vListaEmail.Count - 1 do
+        begin
+          mmEnvio.Lines.Add(vListaEmail[n])
+        end;
+
+        try
+          _EnviarEmailLoteResposta := FBoletoX.EnviarEmailLote(mmEnvio.Lines.Text);
+          mmResposta.Lines.Clear;
+          mmResposta.Lines.Add('.:: Enviar Email Lote ::.');
+          mmResposta.Lines.Add('Mensagem: ' + _EnviarEmailLoteResposta.Mensagem);
+          mmResposta.Lines.Add('Status: ' + _EnviarEmailLoteResposta.Status);
+          mmResposta.Lines.Add('Protocolo: ' + _EnviarEmailLoteResposta.Protocolo);
+
+//          edtProtocoloEmailLote.Text :=  _EnviarEmailLoteResposta.Protocolo;
+
+          if AnsiSameText(_EnviarEmailLoteResposta.Status, 'ERRO') then
+            mmResposta.Lines.Add('ErroClasse: ' + ConverteErroClasse(_EnviarEmailLoteResposta.ErroClasse));
+
+          if _EnviarEmailLoteResposta.ErroConexao <> '' then
+            mmResposta.Lines.Add('Erro Conexão: ' + _EnviarEmailLoteResposta.ErroConexao);
+          mmResposta.Lines.Add('');
+          mmResposta.SelStart := 1;
+          mmResposta.SelLength := 1;
+        finally
+          mmResposta.Lines.EndUpdate;
+        end;
+
+      end;
+    finally
+      EnviarEmailTecnoSpeed.Free;
+    end;
+  end;
+end;
+
+procedure TfrmConsDuplicata.prc_Gravar_Historico(Historico : String);
+var
+  GravaHist : TDuplicataHistorico;
+begin
+  GravaHist := TDuplicataHistorico.Create;
+  fDMCadDuplicata.qryConsulta_Duplicata.First;
+  fDMCadDuplicata.qryConsulta_Duplicata.DisableControls;
+  while not fDMCadDuplicata.qryConsulta_Duplicata.Eof do
+  begin
+    if gridConsulta.SelectedRows.CurrentRowSelected then
+    begin
+      with GravaHist do
+      begin
+        ID := fDMCadDuplicata.qryConsulta_DuplicataID.AsInteger;
+        DTLANCAMENTO := Date;
+        VLR_PAGAMENTO := fDMCadDuplicata.qryConsulta_DuplicataVLR_PARCELA.AsFloat;
+        TIPO_HISTORICO := 'OUT';
+        COMPLEMENTO := Historico;
+        DTHISTORICO := Date;
+        insert;
+      end;
+    end;
+    fDMCadDuplicata.qryConsulta_Duplicata.Next;
+  end;
+end;
+
+procedure TfrmConsDuplicata.prc_Montar_IDDuplicatas;
+begin
+  fDMCadDuplicata.qryConsulta_Duplicata.First;
+  fDMCadDuplicata.qryConsulta_Duplicata.DisableControls;
+  ListaIdsDuplicatas.Clear;
+  while not fDMCadDuplicata.qryConsulta_Duplicata.Eof do
+  begin
+    if gridConsulta.SelectedRows.CurrentRowSelected then
+    begin
+      ListaIdsDuplicatas.Add(IntToStr(fDMCadDuplicata.qryConsulta_DuplicataID.AsInteger));
+    end;
+    fDMCadDuplicata.qryConsulta_Duplicata.Next;
+  end;
+  fDMCadDuplicata.qryConsulta_Duplicata.EnableControls;
+end;
+
 function TfrmConsDuplicata.fnc_Montar_IdIntegracao: string;
 var
   Lista: TStringList;
   I: Integer;
+  teste : String;
 begin
   Lista := TStringList.Create;
   try
@@ -786,28 +1050,29 @@ begin
   end;
 end;
 
-procedure TfrmConsDuplicata.SMDBGrid1GetCellParams(Sender: TObject; Field: TField; AFont: TFont; var Background: TColor; Highlight: Boolean);
+function TfrmConsDuplicata.fnc_Montar_Lista: TStringList;
+var
+  Lista: TStringList;
+  I: Integer;
+  teste : String;
 begin
-  inherited;
-  if fDMCadDuplicata.qryConsulta_Duplicata.IsEmpty then
-    Exit;
-  if (fDMCadDuplicata.qryConsulta_DuplicataID_INTEGRACAO.AsString <> EmptyStr) then
-  begin
-    Background := clGreen;
-    AFont.Color := clWhite;
+  Result := TStringList.Create;
+  try
+    fDMCadDuplicata.qryConsulta_Duplicata.First;
+    fDMCadDuplicata.qryConsulta_Duplicata.DisableControls;
+    while not fDMCadDuplicata.qryConsulta_Duplicata.eof do
+    begin
+      if gridConsulta.SelectedRows.CurrentRowSelected then
+      begin
+        Result.Add(fDMCadDuplicata.qryConsulta_DuplicataID.AsString);
+      end;
+      fDMCadDuplicata.qryConsulta_Duplicata.Next;
+    end;
+  finally
+    fDMCadDuplicata.qryConsulta_Duplicata.EnableControls;
   end;
-  if (fDMCadDuplicata.qryConsulta_DuplicataID_IMPRESSAO.AsString <> EmptyStr) then
-  begin
-    Background := clOlive;
-    AFont.Color := clWhite;
-  end;
-  if (fDMCadDuplicata.qryConsulta_DuplicataDTVENCIMENTO.AsDateTime < Date) then
-  begin
-    Background := clRed;
-    AFont.Color := clWhite;
-  end;
-
 end;
+
 
 procedure TfrmConsDuplicata.SMDBGrid1TitleClick(Column: TColumn);
 begin

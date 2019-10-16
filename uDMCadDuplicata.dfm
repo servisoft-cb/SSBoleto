@@ -1,8 +1,8 @@
 object DMCadDuplicata: TDMCadDuplicata
   OldCreateOrder = False
   OnCreate = DataModuleCreate
-  Height = 262
-  Width = 397
+  Height = 399
+  Width = 597
   object qryDuplicata: TFDQuery
     Connection = DMConection.FDConnection
     SQL.Strings = (
@@ -682,7 +682,7 @@ object DMCadDuplicata: TDMCadDuplicata
       
         'left join DUPLICATA_COB DCOB on DUP.ID = DCOB.ID and DCOB.DTREME' +
         'SSA is null  ')
-    Left = 128
+    Left = 176
     Top = 32
     ParamData = <
       item
@@ -1099,5 +1099,16 @@ object DMCadDuplicata: TDMCadDuplicata
     Connection = DMConection.FDConnection
     Left = 32
     Top = 200
+  end
+  object cdsConsulta: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    Left = 32
+    Top = 288
+  end
+  object dsConsulta: TDataSource
+    DataSet = cdsConsulta
+    Left = 64
+    Top = 289
   end
 end

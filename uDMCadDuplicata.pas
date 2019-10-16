@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option,
   FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
   FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt, Data.DB,
-  FireDAC.Comp.DataSet, FireDAC.Comp.Client, DmdConnection;
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, DmdConnection, Datasnap.DBClient;
 
 type
   TDMCadDuplicata = class(TDataModule)
@@ -170,6 +170,8 @@ type
     qryConsulta_DuplicataID_INTEGRACAO: TStringField;
     qryConsulta: TFDQuery;
     qryConsulta_DuplicataID_IMPRESSAO: TStringField;
+    cdsConsulta: TClientDataSet;
+    dsConsulta: TDataSource;
     procedure qryContasBeforeScroll(DataSet: TDataSet);
     procedure DataModuleCreate(Sender: TObject);
   private
@@ -180,8 +182,7 @@ type
     procedure prc_Abrir_Ocorrencia(Tipo : String; ID_Banco : Integer);
     procedure prc_Abrir_Duplicata(ID : Integer);
     procedure prc_Gravar_Duplicata(ID_Duplicata : Integer ; ID_Integracao : String);
-
-
+    procedure prc_Criar_CampoClientDataSet(NomeCampo : string; Tipo : TFieldType; Tamanho : Integer; Obrigatorio : Boolean);
   end;
 
 var
@@ -216,6 +217,11 @@ begin
   qryOcorrencia.Open();
   if not (qryOcorrencia.IsEmpty) and (qryContasID_OCORRENCIA.AsInteger > 0) then
     qryOcorrencia.Locate('ID',qryContasID_OCORRENCIA.AsInteger);
+end;
+
+procedure TDMCadDuplicata.prc_Criar_CampoClientDataSet(NomeCampo : string; Tipo : TFieldType; Tamanho : Integer; Obrigatorio : Boolean);
+begin
+  cdsConsulta.FieldDefs.Add(NomeCampo,Tipo,Tamanho,Obrigatorio);
 end;
 
 procedure TDMCadDuplicata.prc_Gravar_Duplicata(ID_Duplicata: Integer;

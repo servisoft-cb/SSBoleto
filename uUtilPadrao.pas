@@ -3,10 +3,11 @@ unit uUtilPadrao;
 interface
 
 uses
- Classes,   FireDAC.Comp.Client, DmdConnection, Vcl.Printers;
+ Classes,   FireDAC.Comp.Client, DmdConnection, Vcl.Printers, Datasnap.DBClient;
 
   function  SQLLocate(Tabela, CampoProcura, CampoRetorno, ValorFind: string): string ;
   function GetDefaultPrinterName: string;
+  procedure CopiarDataSet(Origem, Destino : TClientDataSet);
 
 var
  vCaminhoBanco: String;
@@ -50,6 +51,11 @@ begin
   begin
     Result := 'Nenhuma impressora padrão foi detectada.';
   end;
+end;
+
+procedure CopiarDataSet(Origem, Destino : TClientDataSet);
+begin
+  Destino.Data := Origem.Data;
 end;
 
 end.

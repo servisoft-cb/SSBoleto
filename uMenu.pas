@@ -23,7 +23,7 @@ type
     Cedente2: TMenuItem;
     Contas1: TMenuItem;
     Duplicatas1: TMenuItem;
-    SplitView1: TSplitView;
+    splPrincipal: TSplitView;
     ActionList1: TActionList;
     pnlTop: TPanel;
     Image1: TImage;
@@ -43,6 +43,7 @@ type
     procedure actContasExecute(Sender: TObject);
     procedure actDuplicataExecute(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormResize(Sender: TObject);
   private
     { Private declarations }
   public
@@ -104,6 +105,18 @@ begin
   FTDI.MostrarMenuPopup := True;
 end;
 
+procedure TfrmMenu.FormResize(Sender: TObject);
+begin
+  if (Self.Width < 720) then
+  begin
+    splPrincipal.Close;
+  end
+  else
+  begin
+    splPrincipal.Open;
+  end;
+end;
+
 procedure TfrmMenu.FormShow(Sender: TObject);
 begin
   StatusBar1.Panels[2].Text := uUtilPadrao.vCaminhoBanco;
@@ -111,10 +124,10 @@ end;
 
 procedure TfrmMenu.Image1Click(Sender: TObject);
 begin
-  if SplitView1.Opened then
-    SplitView1.Close
+  if splPrincipal.Opened then
+    splPrincipal.Close
   else
-    SplitView1.Open;
+    splPrincipal.Open;
 end;
 
 procedure TfrmMenu.OpenForm(FClass: TFormClass; vEstado: TWindowState;

@@ -6,7 +6,7 @@ uses
   FireDAC.Comp.Client, uBaseDAO, System.SysUtils, System.DateUtils;
 
 type
-  TEnumBanco = (tpBancoBrasil = '001', tpBanrisul = '041', tpCaixaFederal = '104', tpItau = '341', tpSantander = '033', tpBradesco = '237', tpSicredi = '748');
+  TEnumBanco = (tpBancoBrasil, tpBanrisul, tpCaixaFederal, tpItau, tpSantander, tpBradesco, tpSicredi);
 
 type
   TNomeRemessa = class
@@ -19,6 +19,7 @@ type
     FCodigoBanco: string;
     FCodigoCedente: Integer;
     FSequenciaDia: Integer;
+    FTipoBanco: TEnumBanco;
   public
     property Extensao: string read FExtensao write FExtensao;
     property NumeroRemessa: string read FNumeroRemessa write FNumeroRemessa;
@@ -28,6 +29,9 @@ type
     property CodigoBanco: string read FCodigoBanco write FCodigoBanco;
     property CodigoCedente: Integer read FCodigoCedente write FCodigoCedente;
     property SequenciaDia : Integer read FSequenciaDia write FSequenciaDia;
+    property TipoBanco : TEnumBanco read FTipoBanco write FTipoBanco;
+    constructor create;
+    destructor destroy; override;
     class function New: TNomeRemessa;
     function GeraNomeArquivo(ID_Conta: string): string;
     function GeraNomerArquivoSicredi: string;
@@ -45,38 +49,48 @@ uses
 
 { TNomeRemessa }
 
+constructor TNomeRemessa.create;
+begin
+
+end;
+
+destructor TNomeRemessa.destroy;
+begin
+
+  inherited;
+end;
+
 function TNomeRemessa.GeraNomeArquivo(ID_Conta: string): string;
 var
-  _Dados: TBaseDao;
+  Dados: TBaseDao;
   vSql: string;
-  _vQry: TFDQuery;
+  vQry: TFDQuery;
 begin
   result := '';
   if ID_Conta = EmptyStr then
     raise Exception.Create('Código do banco não informado!');
   try
-    _Dados := TBaseDao.Create;
-    _vQry := TFDQuery.Create(nil);
+    Dados := TBaseDao.Create;
+    vQry := TFDQuery.Create(nil);
     vSql := 'select C.NOME, B.CODIGO, B.INICIAL_NOME_ARQ_REMESSA, C.REMESSA_TESTE, C.NUM_ARQ_REMESSA, C.END_ARQUIVO_REM, ';
-    vSql := vSql + 'C.EXTENSAO_ARQ_REM, C.COD_CEDENTE, C.SEQ_REMESSA_DIA ';
+    vSql := vSql + 'COALESCE(C.EXTENSAO_ARQ_REM,' + '''REM''' + ')EXTENSAO_ARQ_REM, C.COD_CEDENTE, C.SEQ_REMESSA_DIA ';
     vSql := vSql + 'from CONTAS C ';
     vSql := vSql + 'left join BANCO B on C.ID_BANCO = B.ID ';
     vSql := vSql + 'where C.ID = ' + QuotedStr(ID_Conta);
-    _vQry := _Dados.RetornaDataSet(vSql);
+    vQry := Dados.RetornaDataSet(vSql);
 
-    NumeroRemessa := _vQry.FieldByName('NUM_ARQ_REMESSA').Value;
-    Extensao := _vQry.FieldByName('EXTENSAO_ARQ_REM').Value;
-    EndArquivo := _vQry.FieldByName('END_ARQUIVO_REM').Value;
-    RemessaTeste := _vQry.FieldByName('REMESSA_TESTE').AsString = 'S';
-    NomeIniRemessa := _vQry.FieldByName('INICIAL_NOME_ARQ_REMESSA').Value;
-    CodigoBanco := _vQry.FieldByName('CODIGO').Value;
-    CodigoCedente := _vQry.FieldByName('COD_CEDENTE').Value;
-    SequenciaDia := _vQry.FieldByName('SEQ_REMESSA_DIA').Value;
+    NumeroRemessa := vQry.FieldByName('NUM_ARQ_REMESSA').AsString;
+    Extensao := vQry.FieldByName('EXTENSAO_ARQ_REM').AsString;
+    EndArquivo := vQry.FieldByName('END_ARQUIVO_REM').AsString;
+    RemessaTeste := vQry.FieldByName('REMESSA_TESTE').AsString = 'S';
+    NomeIniRemessa := vQry.FieldByName('INICIAL_NOME_ARQ_REMESSA').AsString;
+    CodigoBanco := vQry.FieldByName('CODIGO').AsString;
+    CodigoCedente := vQry.FieldByName('COD_CEDENTE').AsInteger;
+    SequenciaDia := vQry.FieldByName('SEQ_REMESSA_DIA').AsInteger;
   except
     raise Exception.Create('Erro ao gerar o nome do arquivo do banco');
   end;
-  Result := EndArquivo;
-  case TEnumBanco(GetEnumValue(TypeInfo(TEnumBanco), CodigoBanco)) of
+  case TipoBanco of
     tpSicredi : Result := GeraNomerArquivoSicredi;
     tpBradesco : Result := GeraNomerArquivoBradesco;
     tpCaixaFederal : Result := GeraNomerArquivoCaixaFederal
@@ -125,7 +139,7 @@ begin
     12 : vMes := 'D';
   end;
 
-  Caminho := Caminho + '\' + CodigoBanco + vMes + FormatFloat('00', Dia);
+  Caminho := EndArquivo + '\' + IntToStr(CodigoCedente) + vMes + FormatFloat('00', Dia) + '.' + Extensao;
 
   while ExisteArquivo do
   begin

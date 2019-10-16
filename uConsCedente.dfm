@@ -43,99 +43,13 @@ inherited frmConsCedente: TfrmConsCedente
   end
   inherited pnlPrincipal: TPanel
     inherited pg_Principal: TPageControl
-      ActivePage = ts_Mensagem
-      inherited ts_Consulta: TTabSheet
-        inherited SMDBGrid1: TSMDBGrid
-          Columns = <
-            item
-              Expanded = False
-              FieldName = 'ID'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'NOME'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'NOME_INTERNO'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'ENDERECO'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'COMPLEMENTO_END'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'NUM_END'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'BAIRRO'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'CEP'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'ID_CIDADE'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'CODMUNICIPIO'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'UF'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'DDD1'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'FONE1'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'ID_CEDENTE'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'TOKEN_CEDENTE'
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'CNPJ_CPF'
-              Visible = True
-            end>
-        end
-      end
       object ts_Mensagem: TTabSheet
         Caption = 'Mensagem'
         ImageIndex = 1
         object mmEnvio: TMemo
           Left = 0
           Top = 0
-          Width = 772
+          Width = 782
           Height = 153
           Align = alTop
           TabOrder = 0
@@ -143,8 +57,8 @@ inherited frmConsCedente: TfrmConsCedente
         object mmResposta: TMemo
           Left = 0
           Top = 153
-          Width = 772
-          Height = 203
+          Width = 782
+          Height = 213
           Align = alClient
           TabOrder = 1
         end

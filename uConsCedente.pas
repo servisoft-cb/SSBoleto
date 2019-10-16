@@ -126,6 +126,9 @@ begin
     mmResposta.Lines.Add('Mensgem: '          + _Cedente.Mensagem);
     mmResposta.Lines.Add('Status: '           + _Cedente.Status);
     mmResposta.Lines.Add('Erro de conexão: '  + _Cedente.ErroConexao);
+    mmResposta.Lines.Add('Id Cedente: ' + _Cedente.IdCedente);
+    mmResposta.Lines.Add('Token: ' + _Cedente.Token);
+
     mmResposta.Lines.Add('');
     if _Cedente.Status = 'SUCESSO' then
     begin

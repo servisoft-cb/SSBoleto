@@ -16,6 +16,7 @@ object frmMenu: TfrmMenu
   Position = poDesigned
   WindowState = wsMaximized
   OnCreate = FormCreate
+  OnResize = FormResize
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -37,10 +38,8 @@ object frmMenu: TfrmMenu
         Alignment = taRightJustify
         Width = 50
       end>
-    ExplicitTop = 372
-    ExplicitWidth = 887
   end
-  object SplitView1: TSplitView
+  object splPrincipal: TSplitView
     Left = 0
     Top = 30
     Width = 200
@@ -49,13 +48,11 @@ object frmMenu: TfrmMenu
     OpenedWidth = 200
     Placement = svpLeft
     TabOrder = 1
-    ExplicitTop = 35
-    ExplicitHeight = 342
     object CategoryButtons1: TCategoryButtons
       Left = 0
       Top = 0
       Width = 200
-      Height = 118
+      Height = 120
       Align = alTop
       ButtonFlow = cbfVertical
       ButtonHeight = 36
@@ -91,7 +88,6 @@ object frmMenu: TfrmMenu
     Color = clHighlight
     ParentBackground = False
     TabOrder = 2
-    ExplicitWidth = 887
     object Image1: TImage
       Left = 1
       Top = 1
@@ -165,7 +161,7 @@ object frmMenu: TfrmMenu
     Left = 552
     Top = 88
     Bitmap = {
-      494C010103005C00940020002000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C010103005C009C0020002000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000800000002000000001002000000000000040
       000000000000000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB6B0B0009C8B8B009079

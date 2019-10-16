@@ -1,8 +1,6 @@
 inherited frmConsConta: TfrmConsConta
   Caption = 'Consulta Contas'
   Position = poDesigned
-  ExplicitWidth = 798
-  ExplicitHeight = 513
   PixelsPerInch = 96
   TextHeight = 13
   inherited pnlTop: TPanel
@@ -43,24 +41,19 @@ inherited frmConsConta: TfrmConsConta
       object ts_Mensagem: TTabSheet
         Caption = 'Mensagem'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object mmEnvio: TMemo
           Left = 0
           Top = 0
-          Width = 772
+          Width = 782
           Height = 153
           Align = alTop
           TabOrder = 0
-          ExplicitTop = 8
         end
         object mmResposta: TMemo
           Left = 0
           Top = 153
-          Width = 772
-          Height = 203
+          Width = 782
+          Height = 213
           Align = alClient
           TabOrder = 1
         end
